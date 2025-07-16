@@ -6,6 +6,19 @@ import { Notifications } from "@mantine/notifications";
 import LoginPage from "../src/app/login/components/LoginPage";
 import React from "react";
 
+// Mock Next.js router
+const mockPush = jest.fn();
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    replace: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    refresh: jest.fn(),
+    prefetch: jest.fn(),
+  }),
+}));
+
 // Mock the login service first
 jest.mock("../src/app/login/services/login-service", () => ({
   loginService: {
@@ -41,9 +54,12 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 defineFeature(feature, (test) => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPush.mockClear();
     mockLogin.mockImplementation(async (email: string, password: string) => {
       if (email === "test@example.com" && password === "password123") {
-        return { success: true, message: "Login successful!" };
+        return { success: true, message: "Login successful!", role: "user" };
+      } else if (email === "admin@example.com" && password === "admin123") {
+        return { success: true, message: "Login successful!", role: "admin" };
       } else if (
         email === "invalid@example.com" &&
         password === "wrongpassword"
@@ -206,6 +222,83 @@ defineFeature(feature, (test) => {
       expect(
         screen.getByText("Password must be at least 6 characters")
       ).toBeInTheDocument();
+    });
+  });
+
+  test("Login with admin account", ({ given, when, then }) => {
+    given("I am on the login page", () => {
+      render(
+        <TestWrapper>
+          <LoginPage />
+        </TestWrapper>
+      );
+    });
+
+    when("I enter admin credentials", async () => {
+      const emailInput = screen.getByTestId("email-input");
+      const passwordInput = screen.getByTestId("password-input");
+      await userEvent.type(emailInput, "admin@example.com");
+      await userEvent.type(passwordInput, "admin123");
+    });
+
+    then("I click the login button", async () => {
+      const loginButton = screen.getByTestId("login-button");
+      await userEvent.click(loginButton);
+    });
+
+    then("I should see a admin dashboard", async () => {
+      await waitFor(() => {
+        expect(mockLogin).toHaveBeenCalledWith("admin@example.com", "admin123");
+        expect(mockLogin).toHaveBeenCalledTimes(1);
+        expect(mockNotifications.show).toHaveBeenCalledWith({
+          title: "Success",
+          message: "Login successful!",
+          color: "green",
+          icon: expect.anything(),
+        });
+        // 驗證是否導向到 admin dashboard
+        expect(mockPush).toHaveBeenCalledWith("/admin");
+      });
+    });
+  });
+
+  test("Login with user account", ({ given, when, then }) => {
+    given("I am on the login page", () => {
+      render(
+        <TestWrapper>
+          <LoginPage />
+        </TestWrapper>
+      );
+    });
+
+    when("I enter user credentials", async () => {
+      const emailInput = screen.getByTestId("email-input");
+      const passwordInput = screen.getByTestId("password-input");
+      await userEvent.type(emailInput, "test@example.com");
+      await userEvent.type(passwordInput, "password123");
+    });
+
+    then("I click the login button", async () => {
+      const loginButton = screen.getByTestId("login-button");
+      await userEvent.click(loginButton);
+    });
+
+    then("I should see a user page", async () => {
+      await waitFor(() => {
+        expect(mockLogin).toHaveBeenCalledWith(
+          "test@example.com",
+          "password123"
+        );
+        expect(mockLogin).toHaveBeenCalledTimes(1);
+        expect(mockNotifications.show).toHaveBeenCalledWith({
+          title: "Success",
+          message: "Login successful!",
+          color: "green",
+          icon: expect.anything(),
+        });
+        // 驗證是否導向到 user page
+        expect(mockPush).toHaveBeenCalledWith("/user");
+      });
     });
   });
 });

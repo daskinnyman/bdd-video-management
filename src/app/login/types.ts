@@ -6,6 +6,7 @@ export type LoginFormData = {
 export type LoginResult = {
   success: boolean;
   message: string;
+  role?: "admin" | "user";
 };
 
 export type LoginService = {

@@ -6,7 +6,9 @@ export class MockLoginService {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     if (email === "test@example.com" && password === "password123") {
-      return { success: true, message: "Login successful!" };
+      return { success: true, message: "Login successful!", role: "user" };
+    } else if (email === "admin@example.com" && password === "admin123") {
+      return { success: true, message: "Login successful!", role: "admin" };
     } else if (
       email === "invalid@example.com" &&
       password === "wrongpassword"

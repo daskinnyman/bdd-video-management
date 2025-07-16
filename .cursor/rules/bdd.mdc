@@ -20,6 +20,9 @@ alwaysApply: true
   - 回傳結果正確（`toBe(...)`）
 - 每個測試檔應加入 `beforeEach()` 並清除 mock 狀態（`jest.clearAllMocks()`）
 - 使用data-testid抓取控制項
+- 錯誤訊息應使用 `screen.getByText(...)` 或 `getByTestId(...)` 驗證
+- 所有欄位操作使用 `userEvent.type` 或 `clear`
+- UI 測試使用 `waitFor` 包裹 async 結果驗證
 - 至少包含：
   - 成功情境
   - 錯誤情境（帳密錯誤）

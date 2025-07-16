@@ -1,10 +1,13 @@
 import { useForm } from "react-hook-form";
 import { notifications } from "@mantine/notifications";
 import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 import type { LoginFormData } from "../types";
 import { loginService } from "../services/login-service";
 
 export const useLoginForm = () => {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -52,6 +55,13 @@ export const useLoginForm = () => {
 
       if (result.success) {
         showNotification("Success", result.message, "green");
+
+        // Redirect based on user role
+        if (result.role === "admin") {
+          router.push("/admin");
+        } else if (result.role === "user") {
+          router.push("/user");
+        }
       } else {
         setError("root", {
           type: "manual",

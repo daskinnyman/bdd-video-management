@@ -28,3 +28,19 @@ Feature: Login
     When I enter an invalid password
     Then I click the login button
     Then I should see an error message on the field that is not valid
+
+  Scenario: Login with admin account
+    Given I am on the login page
+    When I enter admin credentials
+    Then I click the login button
+    Then I should see a admin dashboard
+
+  Scenario: Login with user account
+    Given I am on the login page
+    When I enter user credentials
+    Then I click the login button
+    Then I should see a user page
+    
+    
+    
+    
