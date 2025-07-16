@@ -1,101 +1,101 @@
 # BDD Mantine App
 
-這是一個使用 Next.js 和 Mantine UI 框架的應用程式。
+This is an application built with Next.js and Mantine UI framework.
 
-## 技術棧
+## Tech Stack
 
-- **Next.js 15** - React 框架
-- **Mantine 8** - React UI 組件庫
-- **TypeScript** - 類型安全的 JavaScript
-- **Tabler Icons** - 圖標庫
+- **Next.js 15** - React framework
+- **Mantine 8** - React UI component library
+- **TypeScript** - Type-safe JavaScript
+- **Tabler Icons** - Icon library
 
-## 設定說明
+## Setup Instructions
 
-### Mantine 設定
+### Mantine Configuration
 
-根據 [Mantine 官方指南](https://mantine.dev/guides/next/)，已完成以下設定：
+According to the [Mantine official guide](https://mantine.dev/guides/next/), the following configurations have been completed:
 
-1. **PostCSS 配置** (`postcss.config.js`)
+1. **PostCSS Configuration** (`postcss.config.js`)
 
-   - 設定 `postcss-preset-mantine` 插件
-   - 配置響應式斷點變數
+   - Configure `postcss-preset-mantine` plugin
+   - Configure responsive breakpoint variables
 
-2. **Layout 配置** (`src/app/layout.tsx`)
+2. **Layout Configuration** (`src/app/layout.tsx`)
 
-   - 導入 `MantineProvider` 和 `ColorSchemeScript`
-   - 導入 Mantine CSS 樣式
-   - 包裝應用程式根組件
-   - 添加 `suppressHydrationWarning` 屬性以解決 hydration mismatch
+   - Import `MantineProvider` and `ColorSchemeScript`
+   - Import Mantine CSS styles
+   - Wrap the application root component
+   - Add `suppressHydrationWarning` attribute to resolve hydration mismatch
 
-3. **CSS 配置** (`src/app/globals.css`)
+3. **CSS Configuration** (`src/app/globals.css`)
 
-   - 導入 Mantine 核心樣式
-   - 保留原有的自定義樣式
+   - Import Mantine core styles
+   - Preserve existing custom styles
 
-4. **依賴套件**
-   - `@mantine/core` - 核心組件
-   - `@mantine/hooks` - 實用 hooks
-   - `@mantine/notifications` - 通知組件
-   - `@tabler/icons-react` - 圖標庫
-   - `postcss-preset-mantine` - PostCSS 插件
-   - `postcss-simple-vars` - CSS 變數支援
+4. **Dependencies**
+   - `@mantine/core` - Core components
+   - `@mantine/hooks` - Utility hooks
+   - `@mantine/notifications` - Notification components
+   - `@tabler/icons-react` - Icon library
+   - `postcss-preset-mantine` - PostCSS plugin
+   - `postcss-simple-vars` - CSS variables support
 
-### 重要修正
+### Important Fixes
 
-**Hydration Mismatch 錯誤修正：**
+**Hydration Mismatch Error Fix:**
 
-- 將 `ColorSchemeScript` 從 `<head>` 移到 `<body>` 內
-- 在 `<html>` 和 `<body>` 標籤添加 `suppressHydrationWarning` 屬性
-- 這解決了伺服器端和客戶端渲染不一致的問題
+- Move `ColorSchemeScript` from `<head>` to `<body>`
+- Add `suppressHydrationWarning` attribute to `<html>` and `<body>` tags
+- This resolves the inconsistency between server-side and client-side rendering
 
-## 開發
+## Development
 
 ```bash
-# 安裝依賴
+# Install dependencies
 npm install
 
-# 啟動開發伺服器
+# Start development server
 npm run dev
 
-# 建置生產版本
+# Build for production
 npm run build
 
-# 啟動生產伺服器
+# Start production server
 npm start
 ```
 
-## 功能特色
+## Features
 
-- ✅ 完整的 Mantine 8 設定
-- ✅ TypeScript 支援
-- ✅ 響應式設計
-- ✅ 深色模式支援
-- ✅ 現代化 UI 組件
-- ✅ 圖標支援
-- ✅ 無 hydration mismatch 錯誤
+- ✅ Complete Mantine 8 setup
+- ✅ TypeScript support
+- ✅ Responsive design
+- ✅ Dark mode support
+- ✅ Modern UI components
+- ✅ Icon support
+- ✅ No hydration mismatch errors
 
-## 專案結構
+## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── layout.tsx      # 根布局（包含 MantineProvider）
-│   ├── page.tsx        # 主頁面（展示 Mantine 組件）
-│   └── globals.css     # 全域樣式
-├── components/         # 自定義組件（待添加）
+│   ├── layout.tsx      # Root layout (includes MantineProvider)
+│   ├── page.tsx        # Main page (displays Mantine components)
+│   └── globals.css     # Global styles
+├── components/         # Custom components (to be added)
 └── ...
 ```
 
-## 下一步
+## Next Steps
 
-- 添加更多 Mantine 組件示例
-- 實作深色模式切換
-- 添加表單驗證
-- 整合 API 調用
-- 添加測試
+- Add more Mantine component examples
+- Implement dark mode toggle
+- Add form validation
+- Integrate API calls
+- Add testing
 
-## 參考資源
+## References
 
-- [Mantine 官方文檔](https://mantine.dev/)
-- [Next.js 文檔](https://nextjs.org/docs)
+- [Mantine Official Documentation](https://mantine.dev/)
+- [Next.js Documentation](https://nextjs.org/docs)
 - [Tabler Icons](https://tabler-icons.io/)

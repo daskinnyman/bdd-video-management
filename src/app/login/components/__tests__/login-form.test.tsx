@@ -43,7 +43,7 @@ const defaultProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any;
 
-// 創建測試用的 wrapper 函數
+// Create test wrapper function
 const renderWithMantine = (ui: React.ReactElement) => {
   return render(<MantineProvider>{ui}</MantineProvider>);
 };
@@ -53,8 +53,8 @@ describe("LoginForm", () => {
     jest.clearAllMocks();
   });
 
-  describe("正確輸入的 case", () => {
-    it("應該正確渲染表單元件", () => {
+  describe("Valid input cases", () => {
+    it("should render form components correctly", () => {
       renderWithMantine(<LoginForm {...defaultProps} />);
 
       expect(screen.getByTestId("email-input")).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe("LoginForm", () => {
       expect(screen.getByTestId("login-button")).toBeInTheDocument();
     });
 
-    it("應該在輸入有效資料時啟用登入按鈕", () => {
+    it("should enable login button when valid data is entered", () => {
       const props = {
         ...defaultProps,
         watchedEmail: "test@example.com",
@@ -75,7 +75,7 @@ describe("LoginForm", () => {
       expect(loginButton).not.toBeDisabled();
     });
 
-    it("應該在提交時呼叫 onSubmit 函式", async () => {
+    it("should call onSubmit function when submitted", async () => {
       const localMockOnSubmit = jest.fn(async () => {});
       const props = {
         ...defaultProps,
@@ -84,12 +84,12 @@ describe("LoginForm", () => {
       renderWithMantine(<LoginForm {...props} />);
       const form = screen.getByTestId("login-form");
       fireEvent.submit(form);
-      // 等待 Promise resolve
+      // Wait for Promise to resolve
       await new Promise((r) => setTimeout(r, 0));
       expect(localMockOnSubmit).toHaveBeenCalled();
     });
 
-    it("應該在輸入變更時呼叫對應的 onChange 函式", async () => {
+    it("should call corresponding onChange functions when input changes", async () => {
       const user = userEvent.setup();
       renderWithMantine(<LoginForm {...defaultProps} />);
 
@@ -104,14 +104,14 @@ describe("LoginForm", () => {
     });
   });
 
-  describe("錯誤輸入的 case", () => {
-    it("應該顯示電子郵件格式錯誤", () => {
+  describe("Invalid input cases", () => {
+    it("should display email format error", () => {
       const props = {
         ...defaultProps,
         form: createMockForm({
           formState: {
             errors: {
-              email: { message: "請輸入有效的電子郵件格式" },
+              email: { message: "Please enter a valid email format" },
             },
             isValid: false,
             isSubmitting: false,
@@ -121,16 +121,18 @@ describe("LoginForm", () => {
 
       renderWithMantine(<LoginForm {...props} />);
 
-      expect(screen.getByText("請輸入有效的電子郵件格式")).toBeInTheDocument();
+      expect(
+        screen.getByText("Please enter a valid email format")
+      ).toBeInTheDocument();
     });
 
-    it("應該顯示密碼長度錯誤", () => {
+    it("should display password length error", () => {
       const props = {
         ...defaultProps,
         form: createMockForm({
           formState: {
             errors: {
-              password: { message: "密碼至少需要 6 個字元" },
+              password: { message: "Password must be at least 6 characters" },
             },
             isValid: false,
             isSubmitting: false,
@@ -140,16 +142,18 @@ describe("LoginForm", () => {
 
       renderWithMantine(<LoginForm {...props} />);
 
-      expect(screen.getByText("密碼至少需要 6 個字元")).toBeInTheDocument();
+      expect(
+        screen.getByText("Password must be at least 6 characters")
+      ).toBeInTheDocument();
     });
 
-    it("應該顯示根錯誤訊息", () => {
+    it("should display root error message", () => {
       const props = {
         ...defaultProps,
         form: createMockForm({
           formState: {
             errors: {
-              root: { message: "帳號或密碼錯誤" },
+              root: { message: "Invalid username or password" },
             },
             isValid: false,
             isSubmitting: false,
@@ -160,10 +164,12 @@ describe("LoginForm", () => {
       renderWithMantine(<LoginForm {...props} />);
 
       expect(screen.getByTestId("error-message")).toBeInTheDocument();
-      expect(screen.getByText("帳號或密碼錯誤")).toBeInTheDocument();
+      expect(
+        screen.getByText("Invalid username or password")
+      ).toBeInTheDocument();
     });
 
-    it("應該在表單無效時禁用登入按鈕", () => {
+    it("should disable login button when form is invalid", () => {
       const props = {
         ...defaultProps,
         form: createMockForm({
@@ -182,8 +188,8 @@ describe("LoginForm", () => {
     });
   });
 
-  describe("邊界情況的 case", () => {
-    it("應該在提交中時顯示載入狀態", () => {
+  describe("Edge cases", () => {
+    it("should show loading state when submitting", () => {
       const props = {
         ...defaultProps,
         form: createMockForm({
@@ -198,11 +204,11 @@ describe("LoginForm", () => {
       renderWithMantine(<LoginForm {...props} />);
 
       const loginButton = screen.getByTestId("login-button");
-      expect(loginButton).toHaveTextContent("登入中...");
+      expect(loginButton).toHaveTextContent("Logging in...");
       expect(loginButton).toBeDisabled();
     });
 
-    it("應該在電子郵件為空時禁用登入按鈕", () => {
+    it("should disable login button when email is empty", () => {
       const props = {
         ...defaultProps,
         watchedEmail: "",
@@ -215,7 +221,7 @@ describe("LoginForm", () => {
       expect(loginButton).toBeDisabled();
     });
 
-    it("應該在密碼為空時禁用登入按鈕", () => {
+    it("should disable login button when password is empty", () => {
       const props = {
         ...defaultProps,
         watchedEmail: "test@example.com",
@@ -228,7 +234,7 @@ describe("LoginForm", () => {
       expect(loginButton).toBeDisabled();
     });
 
-    it("應該在兩個欄位都為空時禁用登入按鈕", () => {
+    it("should disable login button when both fields are empty", () => {
       const props = {
         ...defaultProps,
         watchedEmail: "",
@@ -241,14 +247,14 @@ describe("LoginForm", () => {
       expect(loginButton).toBeDisabled();
     });
 
-    it("應該正確處理多個錯誤同時存在的情況", () => {
+    it("should handle multiple errors simultaneously", () => {
       const props = {
         ...defaultProps,
         form: createMockForm({
           formState: {
             errors: {
-              email: { message: "請輸入電子郵件" },
-              password: { message: "請輸入密碼" },
+              email: { message: "Please enter your email" },
+              password: { message: "Please enter your password" },
             },
             isValid: false,
             isSubmitting: false,
@@ -258,11 +264,13 @@ describe("LoginForm", () => {
 
       renderWithMantine(<LoginForm {...props} />);
 
-      expect(screen.getByText("請輸入電子郵件")).toBeInTheDocument();
-      expect(screen.getByText("請輸入密碼")).toBeInTheDocument();
+      expect(screen.getByText("Please enter your email")).toBeInTheDocument();
+      expect(
+        screen.getByText("Please enter your password")
+      ).toBeInTheDocument();
     });
 
-    it("應該在表單無效且有輸入值時禁用登入按鈕", () => {
+    it("should disable login button when form is invalid and there is input value", () => {
       const props = {
         ...defaultProps,
         watchedEmail: "test@example.com",
@@ -283,27 +291,27 @@ describe("LoginForm", () => {
     });
   });
 
-  describe("表單驗證", () => {
-    it("應該正確註冊電子郵件欄位", () => {
+  describe("Form validation", () => {
+    it("should correctly register email field", () => {
       renderWithMantine(<LoginForm {...defaultProps} />);
 
       expect(mockRegister).toHaveBeenCalledWith("email", {
-        required: "請輸入電子郵件",
+        required: "Please enter your email",
         pattern: {
           value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-          message: "請輸入有效的電子郵件格式",
+          message: "Please enter a valid email format",
         },
       });
     });
 
-    it("應該正確註冊密碼欄位", () => {
+    it("should correctly register password field", () => {
       renderWithMantine(<LoginForm {...defaultProps} />);
 
       expect(mockRegister).toHaveBeenCalledWith("password", {
-        required: "請輸入密碼",
+        required: "Please enter your password",
         minLength: {
           value: 6,
-          message: "密碼至少需要 6 個字元",
+          message: "Password must be at least 6 characters",
         },
       });
     });

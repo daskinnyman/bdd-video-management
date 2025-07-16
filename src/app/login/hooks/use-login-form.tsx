@@ -51,21 +51,21 @@ export const useLoginForm = () => {
       const result = await loginService.login(data.email, data.password);
 
       if (result.success) {
-        showNotification("成功", result.message, "green");
+        showNotification("Success", result.message, "green");
       } else {
         setError("root", {
           type: "manual",
           message: result.message,
         });
-        showNotification("錯誤", result.message, "red");
+        showNotification("Error", result.message, "red");
       }
     } catch {
-      const errorMsg = "登入時發生錯誤，請稍後再試";
+      const errorMsg = "An error occurred during login, please try again later";
       setError("root", {
         type: "manual",
         message: errorMsg,
       });
-      showNotification("錯誤", errorMsg, "red");
+      showNotification("Error", errorMsg, "red");
     }
   };
 

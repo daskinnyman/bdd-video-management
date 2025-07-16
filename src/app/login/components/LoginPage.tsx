@@ -27,7 +27,7 @@ export default function LoginPage() {
     <Box className={styles.loginContainer}>
       <Paper shadow="md" p="xl" radius="md" className={styles.loginCard}>
         <Text size="xl" fw={700} className={styles.loginTitle}>
-          登入系統
+          Login System
         </Text>
         <LoginForm
           form={form}

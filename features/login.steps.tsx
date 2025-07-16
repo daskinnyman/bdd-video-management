@@ -43,14 +43,17 @@ defineFeature(feature, (test) => {
     jest.clearAllMocks();
     mockLogin.mockImplementation(async (email: string, password: string) => {
       if (email === "test@example.com" && password === "password123") {
-        return { success: true, message: "登入成功！" };
+        return { success: true, message: "Login successful!" };
       } else if (
         email === "invalid@example.com" &&
         password === "wrongpassword"
       ) {
-        return { success: false, message: "帳號或密碼錯誤" };
+        return { success: false, message: "Invalid username or password" };
       } else {
-        return { success: false, message: "登入失敗，請檢查您的帳號密碼" };
+        return {
+          success: false,
+          message: "Login failed, please check your credentials",
+        };
       }
     });
   });
@@ -84,8 +87,8 @@ defineFeature(feature, (test) => {
         );
         expect(mockLogin).toHaveBeenCalledTimes(1);
         expect(mockNotifications.show).toHaveBeenCalledWith({
-          title: "成功",
-          message: "登入成功！",
+          title: "Success",
+          message: "Login successful!",
           color: "green",
           icon: expect.anything(),
         });
@@ -123,8 +126,8 @@ defineFeature(feature, (test) => {
         expect(mockLogin).toHaveBeenCalledTimes(1);
         expect(screen.getByTestId("error-message")).toBeInTheDocument();
         expect(mockNotifications.show).toHaveBeenCalledWith({
-          title: "錯誤",
-          message: "帳號或密碼錯誤",
+          title: "Error",
+          message: "Invalid username or password",
           color: "red",
           icon: expect.anything(),
         });
@@ -174,7 +177,9 @@ defineFeature(feature, (test) => {
     });
 
     then("I should see an error message on the field that is not valid", () => {
-      expect(screen.getByText("請輸入有效的電子郵件格式")).toBeInTheDocument();
+      expect(
+        screen.getByText("Please enter a valid email format")
+      ).toBeInTheDocument();
     });
   });
 
@@ -189,7 +194,7 @@ defineFeature(feature, (test) => {
 
     when("I enter an invalid password", async () => {
       const passwordInput = screen.getByTestId("password-input");
-      await userEvent.type(passwordInput, "123"); // 太短的密碼
+      await userEvent.type(passwordInput, "123"); // Password too short
     });
 
     then("I click the login button", async () => {
@@ -198,7 +203,9 @@ defineFeature(feature, (test) => {
     });
 
     then("I should see an error message on the field that is not valid", () => {
-      expect(screen.getByText("密碼至少需要 6 個字元")).toBeInTheDocument();
+      expect(
+        screen.getByText("Password must be at least 6 characters")
+      ).toBeInTheDocument();
     });
   });
 });
