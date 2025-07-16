@@ -21,3 +21,4 @@ alwaysApply: true
 - 按鈕應支援 `loading` 狀態，顯示等待中動畫
 - 可使用 `@mantine/notifications` 顯示操作成功或錯誤提示
 - 請保持合理的排版結構（例如 `Paper` 內包表單，欄位間有 `mt="md"`）
+- 請使用scss module來處理Mantine元件沒有提供的樣式
