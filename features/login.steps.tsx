@@ -3,7 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
-import LoginPage from "../src/app/login/components/LoginPage";
+import LoginPage from "../src/app/login/components/login-page";
 import React from "react";
 
 // Mock Next.js router
