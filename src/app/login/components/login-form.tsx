@@ -43,7 +43,7 @@ export const LoginForm = ({
       {errors.root && (
         <Alert
           icon={<IconAlertCircle size={16} />}
-          title="登入失敗"
+          title="Login Failed"
           color="red"
           mt="md"
           data-testid="error-message"
@@ -53,14 +53,14 @@ export const LoginForm = ({
       )}
       <TextInput
         {...register("email", {
-          required: "請輸入電子郵件",
+          required: "Please enter your email",
           pattern: {
             value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: "請輸入有效的電子郵件格式",
+            message: "Please enter a valid email format",
           },
         })}
-        label="電子郵件"
-        placeholder="請輸入您的電子郵件"
+        label="Email"
+        placeholder="Please enter your email"
         data-testid="email-input"
         error={errors.email?.message}
         onChange={onEmailChange}
@@ -70,14 +70,14 @@ export const LoginForm = ({
 
       <PasswordInput
         {...register("password", {
-          required: "請輸入密碼",
+          required: "Please enter your password",
           minLength: {
             value: 6,
-            message: "密碼至少需要 6 個字元",
+            message: "Password must be at least 6 characters",
           },
         })}
-        label="密碼"
-        placeholder="請輸入您的密碼"
+        label="Password"
+        placeholder="Please enter your password"
         data-testid="password-input"
         error={errors.password?.message}
         onChange={onPasswordChange}
@@ -93,7 +93,7 @@ export const LoginForm = ({
           data-testid="login-button"
           fullWidth
         >
-          {isSubmitting ? "登入中..." : "登入"}
+          {isSubmitting ? "Logging in..." : "Login"}
         </Button>
       </Group>
     </form>

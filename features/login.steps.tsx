@@ -1,0 +1,204 @@
+import { defineFeature, loadFeature } from "jest-cucumber";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
+import LoginPage from "../src/app/login/components/LoginPage";
+import React from "react";
+
+// Mock the login service first
+jest.mock("../src/app/login/services/login-service", () => ({
+  loginService: {
+    login: jest.fn(),
+  },
+}));
+
+// Mock notifications
+jest.mock("@mantine/notifications", () => ({
+  Notifications: () => null,
+  notifications: {
+    show: jest.fn(),
+  },
+}));
+
+// Load the feature file
+const feature = loadFeature("./features/login.feature");
+
+// Get the mocked function after mock is defined
+import { loginService } from "../src/app/login/services/login-service";
+import { notifications } from "@mantine/notifications";
+const mockLogin = jest.mocked(loginService.login);
+const mockNotifications = jest.mocked(notifications);
+
+// Test wrapper component
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <MantineProvider>
+    <Notifications />
+    {children}
+  </MantineProvider>
+);
+
+defineFeature(feature, (test) => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockLogin.mockImplementation(async (email: string, password: string) => {
+      if (email === "test@example.com" && password === "password123") {
+        return { success: true, message: "登入成功！" };
+      } else if (
+        email === "invalid@example.com" &&
+        password === "wrongpassword"
+      ) {
+        return { success: false, message: "帳號或密碼錯誤" };
+      } else {
+        return { success: false, message: "登入失敗，請檢查您的帳號密碼" };
+      }
+    });
+  });
+
+  test("Login with valid credentials", ({ given, when, then }) => {
+    given("I am on the login page", () => {
+      render(
+        <TestWrapper>
+          <LoginPage />
+        </TestWrapper>
+      );
+    });
+
+    when("I enter valid credentials", async () => {
+      const emailInput = screen.getByTestId("email-input");
+      const passwordInput = screen.getByTestId("password-input");
+      await userEvent.type(emailInput, "test@example.com");
+      await userEvent.type(passwordInput, "password123");
+    });
+
+    then("I click the login button", async () => {
+      const loginButton = screen.getByTestId("login-button");
+      await userEvent.click(loginButton);
+    });
+
+    then("I should see a success message", async () => {
+      await waitFor(() => {
+        expect(mockLogin).toHaveBeenCalledWith(
+          "test@example.com",
+          "password123"
+        );
+        expect(mockLogin).toHaveBeenCalledTimes(1);
+        expect(mockNotifications.show).toHaveBeenCalledWith({
+          title: "成功",
+          message: "登入成功！",
+          color: "green",
+          icon: expect.anything(),
+        });
+      });
+    });
+  });
+
+  test("Login with invalid credentials", ({ given, when, then }) => {
+    given("I am on the login page", () => {
+      render(
+        <TestWrapper>
+          <LoginPage />
+        </TestWrapper>
+      );
+    });
+
+    when("I enter invalid credentials", async () => {
+      const emailInput = screen.getByTestId("email-input");
+      const passwordInput = screen.getByTestId("password-input");
+      await userEvent.type(emailInput, "invalid@example.com");
+      await userEvent.type(passwordInput, "wrongpassword");
+    });
+
+    then("I click the login button", async () => {
+      const loginButton = screen.getByTestId("login-button");
+      await userEvent.click(loginButton);
+    });
+
+    then("I should see an error message on the form", async () => {
+      await waitFor(() => {
+        expect(mockLogin).toHaveBeenCalledWith(
+          "invalid@example.com",
+          "wrongpassword"
+        );
+        expect(mockLogin).toHaveBeenCalledTimes(1);
+        expect(screen.getByTestId("error-message")).toBeInTheDocument();
+        expect(mockNotifications.show).toHaveBeenCalledWith({
+          title: "錯誤",
+          message: "帳號或密碼錯誤",
+          color: "red",
+          icon: expect.anything(),
+        });
+      });
+    });
+  });
+
+  test("Login with empty credentials", ({ given, when, then }) => {
+    given("I am on the login page", () => {
+      render(
+        <TestWrapper>
+          <LoginPage />
+        </TestWrapper>
+      );
+    });
+
+    when("I enter empty credentials", async () => {
+      const emailInput = screen.getByTestId("email-input");
+      const passwordInput = screen.getByTestId("password-input");
+      await userEvent.clear(emailInput);
+      await userEvent.clear(passwordInput);
+    });
+
+    then("the login button should be disabled", () => {
+      const loginButton = screen.getByTestId("login-button");
+      expect(loginButton).toBeDisabled();
+    });
+  });
+
+  test("Login with invalid email", ({ given, when, then }) => {
+    given("I am on the login page", () => {
+      render(
+        <TestWrapper>
+          <LoginPage />
+        </TestWrapper>
+      );
+    });
+
+    when("I enter an invalid email", async () => {
+      const emailInput = screen.getByTestId("email-input");
+      await userEvent.type(emailInput, "invalid-email");
+    });
+
+    then("I click the login button", async () => {
+      const loginButton = screen.getByTestId("login-button");
+      await userEvent.click(loginButton);
+    });
+
+    then("I should see an error message on the field that is not valid", () => {
+      expect(screen.getByText("請輸入有效的電子郵件格式")).toBeInTheDocument();
+    });
+  });
+
+  test("Login with invalid password", ({ given, when, then }) => {
+    given("I am on the login page", () => {
+      render(
+        <TestWrapper>
+          <LoginPage />
+        </TestWrapper>
+      );
+    });
+
+    when("I enter an invalid password", async () => {
+      const passwordInput = screen.getByTestId("password-input");
+      await userEvent.type(passwordInput, "123"); // 太短的密碼
+    });
+
+    then("I click the login button", async () => {
+      const loginButton = screen.getByTestId("login-button");
+      await userEvent.click(loginButton);
+    });
+
+    then("I should see an error message on the field that is not valid", () => {
+      expect(screen.getByText("密碼至少需要 6 個字元")).toBeInTheDocument();
+    });
+  });
+});

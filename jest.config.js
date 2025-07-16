@@ -4,7 +4,8 @@ module.exports = {
     testEnvironment: 'jsdom',
     setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
     moduleNameMapper: {
-        '^@/(.*)$': '<rootDir>/src/$1'
+        '^@/(.*)$': '<rootDir>/src/$1',
+        '^.+\\.(css|less|scss|sass)$': 'identity-obj-proxy'
     },
     transform: {
         '^.+\\.(ts|tsx)$': ['ts-jest', {
@@ -13,12 +14,5 @@ module.exports = {
     },
     transformIgnorePatterns: [
         'node_modules/(?!(@mantine|@tabler)/)'
-    ],
-    extensionsToTreatAsEsm: ['.ts', '.tsx'],
-    globals: {
-        'ts-jest': {
-            useESM: true,
-            tsconfig: 'tsconfig.jest.json'
-        }
-    }
+    ]
 };
