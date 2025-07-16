@@ -1,0 +1,15 @@
+---
+description: 
+globs: src/**/*.tsx
+alwaysApply: false
+---
+---
+description: UI development conventions
+globs: ["ui/**/*.tsx"]
+---
+- 檔案名稱使用kebab-case
+- 所有元件命名需使用 PascalCase
+- 使用react-hook-form建立表單，及表單驗證規則
+- 使用 SCSS Modules 作為樣式標準
+- 使用 type 而非 interface
+- 在需要互動的控制向上加入 data-testid （如 `input-username`）
