@@ -1,26 +1,38 @@
 import type { LoginResult } from "../types";
 
-export class MockLoginService {
+export class LoginService {
   async login(email: string, password: string): Promise<LoginResult> {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (email === "test@example.com" && password === "password123") {
-      return { success: true, message: "Login successful!", role: "user" };
-    } else if (email === "admin@example.com" && password === "admin123") {
-      return { success: true, message: "Login successful!", role: "admin" };
-    } else if (
-      email === "invalid@example.com" &&
-      password === "wrongpassword"
-    ) {
-      return { success: false, message: "Invalid username or password" };
-    } else {
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Login failed",
+        };
+      }
+
+      return {
+        success: data.success,
+        message: data.message,
+        role: data.role,
+        token: data.token,
+      };
+    } catch {
       return {
         success: false,
-        message: "Login failed, please check your credentials",
+        message: "Network error occurred",
       };
     }
   }
 }
 
-export const loginService = new MockLoginService();
+export const loginService = new LoginService();

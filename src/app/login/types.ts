@@ -7,6 +7,7 @@ export type LoginResult = {
   success: boolean;
   message: string;
   role?: "admin" | "user";
+  token?: string;
 };
 
 export type LoginService = {

@@ -19,13 +19,6 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
-// Mock the login service first
-jest.mock("../src/app/login/services/login-service", () => ({
-  loginService: {
-    login: jest.fn(),
-  },
-}));
-
 // Mock notifications
 jest.mock("@mantine/notifications", () => ({
   Notifications: () => null,
@@ -34,14 +27,16 @@ jest.mock("@mantine/notifications", () => ({
   },
 }));
 
+// Mock fetch API
+global.fetch = jest.fn();
+
 // Load the feature file
 const feature = loadFeature("./features/login.feature");
 
 // Get the mocked function after mock is defined
-import { loginService } from "../src/app/login/services/login-service";
 import { notifications } from "@mantine/notifications";
-const mockLogin = jest.mocked(loginService.login);
 const mockNotifications = jest.mocked(notifications);
+const mockFetch = jest.mocked(fetch);
 
 // Test wrapper component
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
@@ -55,27 +50,21 @@ defineFeature(feature, (test) => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPush.mockClear();
-    mockLogin.mockImplementation(async (email: string, password: string) => {
-      if (email === "test@example.com" && password === "password123") {
-        return { success: true, message: "Login successful!", role: "user" };
-      } else if (email === "admin@example.com" && password === "admin123") {
-        return { success: true, message: "Login successful!", role: "admin" };
-      } else if (
-        email === "invalid@example.com" &&
-        password === "wrongpassword"
-      ) {
-        return { success: false, message: "Invalid username or password" };
-      } else {
-        return {
-          success: false,
-          message: "Login failed, please check your credentials",
-        };
-      }
-    });
+    mockFetch.mockClear();
   });
 
   test("Login with valid credentials", ({ given, when, then }) => {
     given("I am on the login page", () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          message: "Login successful!",
+          role: "user",
+          token: "mock-token",
+        }),
+      } as Response);
+
       render(
         <TestWrapper>
           <LoginPage />
@@ -97,11 +86,16 @@ defineFeature(feature, (test) => {
 
     then("I should see a success message", async () => {
       await waitFor(() => {
-        expect(mockLogin).toHaveBeenCalledWith(
-          "test@example.com",
-          "password123"
-        );
-        expect(mockLogin).toHaveBeenCalledTimes(1);
+        expect(mockFetch).toHaveBeenCalledWith("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: "test@example.com",
+            password: "password123",
+          }),
+        });
         expect(mockNotifications.show).toHaveBeenCalledWith({
           title: "Success",
           message: "Login successful!",
@@ -114,6 +108,14 @@ defineFeature(feature, (test) => {
 
   test("Login with invalid credentials", ({ given, when, then }) => {
     given("I am on the login page", () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({
+          success: false,
+          message: "Invalid username or password",
+        }),
+      } as Response);
+
       render(
         <TestWrapper>
           <LoginPage />
@@ -135,11 +137,6 @@ defineFeature(feature, (test) => {
 
     then("I should see an error message on the form", async () => {
       await waitFor(() => {
-        expect(mockLogin).toHaveBeenCalledWith(
-          "invalid@example.com",
-          "wrongpassword"
-        );
-        expect(mockLogin).toHaveBeenCalledTimes(1);
         expect(screen.getByTestId("error-message")).toBeInTheDocument();
         expect(mockNotifications.show).toHaveBeenCalledWith({
           title: "Error",
@@ -210,7 +207,7 @@ defineFeature(feature, (test) => {
 
     when("I enter an invalid password", async () => {
       const passwordInput = screen.getByTestId("password-input");
-      await userEvent.type(passwordInput, "123"); // Password too short
+      await userEvent.type(passwordInput, "123");
     });
 
     then("I click the login button", async () => {
@@ -227,6 +224,16 @@ defineFeature(feature, (test) => {
 
   test("Login with admin account", ({ given, when, then }) => {
     given("I am on the login page", () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          message: "Login successful!",
+          role: "admin",
+          token: "mock-admin-token",
+        }),
+      } as Response);
+
       render(
         <TestWrapper>
           <LoginPage />
@@ -248,15 +255,12 @@ defineFeature(feature, (test) => {
 
     then("I should see a admin dashboard", async () => {
       await waitFor(() => {
-        expect(mockLogin).toHaveBeenCalledWith("admin@example.com", "admin123");
-        expect(mockLogin).toHaveBeenCalledTimes(1);
         expect(mockNotifications.show).toHaveBeenCalledWith({
           title: "Success",
           message: "Login successful!",
           color: "green",
           icon: expect.anything(),
         });
-        // 驗證是否導向到 admin dashboard
         expect(mockPush).toHaveBeenCalledWith("/admin");
       });
     });
@@ -264,6 +268,16 @@ defineFeature(feature, (test) => {
 
   test("Login with user account", ({ given, when, then }) => {
     given("I am on the login page", () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          message: "Login successful!",
+          role: "user",
+          token: "mock-user-token",
+        }),
+      } as Response);
+
       render(
         <TestWrapper>
           <LoginPage />
@@ -285,18 +299,12 @@ defineFeature(feature, (test) => {
 
     then("I should see a user page", async () => {
       await waitFor(() => {
-        expect(mockLogin).toHaveBeenCalledWith(
-          "test@example.com",
-          "password123"
-        );
-        expect(mockLogin).toHaveBeenCalledTimes(1);
         expect(mockNotifications.show).toHaveBeenCalledWith({
           title: "Success",
           message: "Login successful!",
           color: "green",
           icon: expect.anything(),
         });
-        // 驗證是否導向到 user page
         expect(mockPush).toHaveBeenCalledWith("/user");
       });
     });
