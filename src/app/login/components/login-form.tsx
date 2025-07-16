@@ -39,7 +39,7 @@ export const LoginForm = ({
   } = form;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form data-testid="login-form" onSubmit={handleSubmit(onSubmit)}>
       {errors.root && (
         <Alert
           icon={<IconAlertCircle size={16} />}
