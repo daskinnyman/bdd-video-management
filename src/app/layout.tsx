@@ -24,7 +24,9 @@ export const metadata: Metadata = {
 
 // MSW 設定（僅在開發環境）
 if (process.env.NODE_ENV === "development") {
-  import("../mocks/browser");
+  import("../mocks").then(({ enableMocking }) => {
+    enableMocking();
+  });
 }
 
 export default function RootLayout({

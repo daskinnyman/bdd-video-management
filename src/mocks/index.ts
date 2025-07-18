@@ -6,7 +6,9 @@ async function enableMocking() {
   } else {
     // 在瀏覽器環境中，使用 worker
     const { worker } = await import("./browser");
-    return worker.start();
+    if (worker) {
+      return worker.start();
+    }
   }
 }
 
