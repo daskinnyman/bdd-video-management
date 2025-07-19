@@ -3,6 +3,7 @@
 import { Paper, Box, Text } from "@mantine/core";
 import { useLoginForm } from "../hooks/use-login-form";
 import { LoginForm } from "./login-form";
+import { ThemeToggle } from "../../components/theme-toggle";
 import styles from "../login.module.scss";
 
 export default function LoginPage() {
@@ -25,6 +26,10 @@ export default function LoginPage() {
 
   return (
     <Box className={styles.loginContainer}>
+      <Box pos="absolute" top={20} right={20}>
+        <ThemeToggle />
+      </Box>
+
       <Paper shadow="md" p="xl" radius="md" className={styles.loginCard}>
         <Text size="xl" fw={700} className={styles.loginTitle}>
           Login System

@@ -7,12 +7,18 @@ import {
   Stack,
   Card,
   Badge,
+  Box,
 } from "@mantine/core";
 import { IconBrandGithub, IconBrandTwitter } from "@tabler/icons-react";
+import { ThemeToggle } from "./components/theme-toggle";
 
 export default function Home() {
   return (
     <Container size="lg" py="xl">
+      <Box pos="absolute" top={20} right={20}>
+        <ThemeToggle />
+      </Box>
+
       <Stack gap="xl" align="center">
         <Title order={1} ta="center" size="3rem">
           Welcome to Mantine + Next.js

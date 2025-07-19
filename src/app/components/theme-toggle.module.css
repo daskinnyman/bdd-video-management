@@ -1,0 +1,39 @@
+.actionIcon {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.actionIcon:hover {
+  transform: scale(1.05);
+}
+
+.icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.2s ease;
+}
+
+.light {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.dark {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.5);
+}
+
+[data-mantine-color-scheme="dark"] .light {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.5);
+}
+
+[data-mantine-color-scheme="dark"] .dark {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}

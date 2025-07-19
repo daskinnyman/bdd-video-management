@@ -19,6 +19,7 @@ import {
   IconEdit,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { ThemeToggle } from "../components/theme-toggle";
 
 export default function UserPage() {
   const router = useRouter();
@@ -30,6 +31,10 @@ export default function UserPage() {
 
   return (
     <Box p="xl">
+      <Box pos="absolute" top={20} right={20}>
+        <ThemeToggle />
+      </Box>
+
       <Paper shadow="md" p="xl" radius="md">
         <Group justify="space-between" mb="xl">
           <Title order={1}>User Dashboard</Title>
