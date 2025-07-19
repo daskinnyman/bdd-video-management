@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import React from "react";
+import { fireEvent } from "@testing-library/react";
 
 // Mock Next.js router
 const mockPush = jest.fn();
@@ -64,6 +65,12 @@ const TestUploadVideoComponent = () => {
     setFile(selectedFile);
   };
 
+  const handleDrop = (files: File[]) => {
+    if (files.length > 0) {
+      setFile(files[0]);
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -99,7 +106,17 @@ const TestUploadVideoComponent = () => {
         accept="video/*"
         data-testid="file-input"
         onChange={handleFileChange}
+        onDrop={(e) => {
+          e.preventDefault();
+          const files = Array.from(e.dataTransfer.files);
+          handleDrop(files);
+        }}
       />
+      {file && (
+        <div data-testid="file-selected-message">
+          Selected file: {file.name}
+        </div>
+      )}
       <input
         type="text"
         placeholder="Video Title"
@@ -376,6 +393,79 @@ defineFeature(feature, (test) => {
         expect(
           screen.getByText("Please select a video tag")
         ).toBeInTheDocument();
+      });
+    });
+  });
+
+  test("Upload a video using drag and drop", ({ given, when, then }) => {
+    given("I am on the upload video page", () => {
+      render(
+        <TestWrapper>
+          <TestUploadVideoComponent />
+        </TestWrapper>
+      );
+    });
+
+    when("I drag and drop a video file", async () => {
+      const dropzone = screen.getByTestId("file-input");
+      const file = new File(["video content"], "test-video.mp4", {
+        type: "video/mp4",
+      });
+
+      // Create a proper drag and drop event
+      const dragEvent = new Event("dragenter", { bubbles: true });
+      const dropEvent = new Event("drop", { bubbles: true });
+
+      // Add dataTransfer to the drop event
+      Object.defineProperty(dropEvent, "dataTransfer", {
+        value: {
+          files: [file],
+          types: ["Files"],
+        },
+        writable: false,
+      });
+
+      // Simulate the drag and drop sequence
+      fireEvent(dropzone, dragEvent);
+      fireEvent(dropzone, dropEvent);
+    });
+
+    then("I should see a success message", async () => {
+      // After drag and drop, we should see a file selected message
+      await waitFor(() => {
+        expect(screen.getByTestId("file-selected-message")).toBeInTheDocument();
+      });
+    });
+
+    then("I fill the title", async () => {
+      const titleInput = screen.getByTestId("title-input");
+      await userEvent.type(titleInput, "Test Video Title");
+    });
+
+    then("I fill the description", async () => {
+      const descriptionInput = screen.getByTestId("description-input");
+      await userEvent.type(
+        descriptionInput,
+        "This is a test video description"
+      );
+    });
+
+    then("I choose a video tag", async () => {
+      const tagSelect = screen.getByTestId("tag-select");
+      await userEvent.selectOptions(tagSelect, "1");
+    });
+
+    then("I should see a success message", async () => {
+      const uploadButton = screen.getByTestId("upload-button");
+      await userEvent.click(uploadButton);
+
+      await waitFor(() => {
+        expect(mockNotifications.show).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: "Success",
+            color: "green",
+          })
+        );
       });
     });
   });

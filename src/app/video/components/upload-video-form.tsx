@@ -5,18 +5,18 @@ import {
   Button,
   Group,
   Alert,
-  FileInput,
   Paper,
   Title,
   Stack,
 } from "@mantine/core";
-import { IconAlertCircle, IconUpload } from "@tabler/icons-react";
+import { IconAlertCircle } from "@tabler/icons-react";
 import type {
   UseFormRegister,
   UseFormHandleSubmit,
   FieldErrors,
 } from "react-hook-form";
 import type { UploadVideoFormData, VideoTag } from "../types";
+import { VideoDropzone } from "./video-dropzone";
 
 type UploadVideoFormProps = {
   form: {
@@ -29,8 +29,6 @@ type UploadVideoFormProps = {
     };
   };
   watchedFile: File | null;
-  watchedTitle: string;
-  watchedTag: string;
   videoTags: VideoTag[];
   onSubmit: (data: UploadVideoFormData) => Promise<void>;
   onFileChange: (file: File | null) => void;
@@ -42,8 +40,6 @@ type UploadVideoFormProps = {
 export const UploadVideoForm = ({
   form,
   watchedFile,
-  watchedTitle,
-  watchedTag,
   videoTags,
   onSubmit,
   onFileChange,
@@ -75,35 +71,11 @@ export const UploadVideoForm = ({
             </Alert>
           )}
 
-          <FileInput
-            {...register("file", {
-              required: "Please select a video file",
-              validate: (value) => {
-                if (!value) return "Please select a video file";
-                const allowedTypes = [
-                  "video/mp4",
-                  "video/avi",
-                  "video/mov",
-                  "video/wmv",
-                ];
-                if (!allowedTypes.includes(value.type)) {
-                  return "Unsupported file format. Please select MP4, AVI, MOV, or WMV format";
-                }
-                const maxSize = 100 * 1024 * 1024; // 100MB
-                if (value.size > maxSize) {
-                  return "File size cannot exceed 100MB";
-                }
-                return true;
-              },
-            })}
-            label="Video File"
-            placeholder="Select video file"
-            accept="video/*"
-            data-testid="file-input"
-            error={errors.file?.message}
-            onChange={onFileChange}
-            leftSection={<IconUpload size={16} />}
-            required
+          <VideoDropzone
+            watchedFile={watchedFile}
+            isSubmitting={isSubmitting}
+            onFileChange={onFileChange}
+            errors={errors}
           />
 
           <TextInput
@@ -153,9 +125,7 @@ export const UploadVideoForm = ({
             <Button
               type="submit"
               loading={isSubmitting}
-              disabled={
-                !isValid || !watchedFile || !watchedTitle || !watchedTag
-              }
+              disabled={!isValid || !watchedFile}
               data-testid="upload-button"
               fullWidth
               size="lg"

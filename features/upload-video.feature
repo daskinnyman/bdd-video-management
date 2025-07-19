@@ -10,6 +10,15 @@ Feature: Upload Video
         Then I choose a video tag
         Then I should see a success message
 
+    Scenario: Upload a video using drag and drop
+        Given I am on the upload video page
+        When I drag and drop a video file
+        Then I should see a success message
+        Then I fill the title
+        Then I fill the description
+        Then I choose a video tag
+        Then I should see a success message
+
     Scenario: Upload a video with empty file
         Given I am on the upload video page
         Then I fill the title

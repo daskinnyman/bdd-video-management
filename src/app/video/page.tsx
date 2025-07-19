@@ -11,8 +11,6 @@ export default function UploadVideoPage() {
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
     watchedFile,
-    watchedTitle,
-    watchedTag,
     videoTags,
     onSubmit,
     handleFileChange,
@@ -35,8 +33,6 @@ export default function UploadVideoPage() {
             formState: { errors, isValid, isSubmitting },
           }}
           watchedFile={watchedFile}
-          watchedTitle={watchedTitle}
-          watchedTag={watchedTag}
           videoTags={videoTags}
           onSubmit={onSubmit}
           onFileChange={handleFileChange}

@@ -34,9 +34,7 @@ export const useUploadVideoForm = () => {
   });
 
   const watchedFile = watch("file");
-  const watchedTitle = watch("title");
   const watchedDescription = watch("description");
-  const watchedTag = watch("tag");
 
   // Load video tags
   useEffect(() => {
@@ -130,9 +128,7 @@ export const useUploadVideoForm = () => {
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
     watchedFile,
-    watchedTitle,
     watchedDescription,
-    watchedTag,
     videoTags,
     isLoadingTags,
     onSubmit,
