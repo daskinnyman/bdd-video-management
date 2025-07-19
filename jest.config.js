@@ -5,7 +5,8 @@ module.exports = {
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
-        '^.+\\.(css|less|scss|sass)$': 'identity-obj-proxy'
+        '^.+\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+        '^@mantine/(.*)$': '<rootDir>/node_modules/@mantine/$1'
     },
     transform: {
         '^.+\\.(ts|tsx)$': ['ts-jest', {
@@ -18,5 +19,6 @@ module.exports = {
     extensionsToTreatAsEsm: ['.ts', '.tsx'],
     testEnvironmentOptions: {
         customExportConditions: ['node', 'node-addons'],
-    }
+    },
+    moduleDirectories: ['node_modules', 'src']
 };

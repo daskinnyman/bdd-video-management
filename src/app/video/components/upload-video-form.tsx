@@ -1,5 +1,3 @@
-"use client";
-
 import {
   TextInput,
   Textarea,
@@ -60,12 +58,11 @@ export const UploadVideoForm = ({
   } = form;
 
   return (
-    <Paper shadow="xs" p="xl" radius="md" withBorder>
-      <Title order={2} mb="lg" ta="center">
-        Upload Video
-      </Title>
-
-      <form data-testid="upload-video-form" onSubmit={handleSubmit(onSubmit)}>
+    <form data-testid="upload-video-form" onSubmit={handleSubmit(onSubmit)}>
+      <Paper shadow="xs" p="xl" radius="md" withBorder>
+        <Title order={2} mb="lg" ta="center">
+          Upload Video
+        </Title>
         <Stack gap="md">
           {errors.root && (
             <Alert
@@ -167,7 +164,7 @@ export const UploadVideoForm = ({
             </Button>
           </Group>
         </Stack>
-      </form>
-    </Paper>
+      </Paper>
+    </form>
   );
 };

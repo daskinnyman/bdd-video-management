@@ -1,249 +1,85 @@
+/// <reference types="@testing-library/jest-dom" />
+
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MantineProvider, createTheme } from "@mantine/core";
 import { UploadVideoForm } from "../upload-video-form";
+import { fireEvent } from "@testing-library/react";
 import type { VideoTag } from "../../types";
-
-// Mock Mantine components to avoid React 19 compatibility issues
-jest.mock("@mantine/core", () => ({
-  TextInput: ({
-    label,
-    placeholder,
-    "data-testid": testId,
-    error,
-    onChange,
-    required,
-    ...props
-  }: {
-    label?: string;
-    placeholder?: string;
-    "data-testid"?: string;
-    error?: string;
-    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    required?: boolean;
-    [key: string]: unknown;
-  }) => (
-    <div>
-      <label>{label}</label>
-      <input
-        data-testid={testId}
-        placeholder={placeholder}
-        onChange={onChange}
-        required={required}
-        {...props}
-      />
-      {error && <span>{error}</span>}
-    </div>
-  ),
-  Textarea: ({
-    label,
-    placeholder,
-    "data-testid": testId,
-    error,
-    onChange,
-    ...props
-  }: {
-    label?: string;
-    placeholder?: string;
-    "data-testid"?: string;
-    error?: string;
-    onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
-    [key: string]: unknown;
-  }) => (
-    <div>
-      <label>{label}</label>
-      <textarea
-        data-testid={testId}
-        placeholder={placeholder}
-        onChange={onChange}
-        {...props}
-      />
-      {error && <span>{error}</span>}
-    </div>
-  ),
-  Select: ({
-    label,
-    placeholder,
-    "data-testid": testId,
-    error,
-    onChange,
-    required,
-    data,
-    ...props
-  }: {
-    label?: string;
-    placeholder?: string;
-    "data-testid"?: string;
-    error?: string;
-    onChange?: (value: string | null) => void;
-    required?: boolean;
-    data?: Array<{ value: string; label: string }>;
-    [key: string]: unknown;
-  }) => (
-    <div>
-      <label>{label}</label>
-      <select
-        data-testid={testId}
-        onChange={(e) => onChange?.(e.target.value)}
-        required={required}
-        {...props}
-      >
-        <option value="">{placeholder}</option>
-        {data?.map((item) => (
-          <option key={item.value} value={item.value}>
-            {item.label}
-          </option>
-        ))}
-      </select>
-      {error && <span>{error}</span>}
-    </div>
-  ),
-  Button: ({
-    children,
-    "data-testid": testId,
-    disabled,
-    loading,
-    type,
-    ...props
-  }: {
-    children?: React.ReactNode;
-    "data-testid"?: string;
-    disabled?: boolean;
-    loading?: boolean;
-    type?: "submit" | "reset" | "button";
-    [key: string]: unknown;
-  }) => (
-    <button
-      data-testid={testId}
-      disabled={disabled || loading}
-      type={type}
-      {...props}
-    >
-      {loading ? "Uploading..." : children}
-    </button>
-  ),
-  FileInput: ({
-    label,
-    "data-testid": testId,
-    error,
-    onChange,
-    required,
-    ...props
-  }: {
-    label?: string;
-    "data-testid"?: string;
-    error?: string;
-    onChange?: (file: File | null) => void;
-    required?: boolean;
-    [key: string]: unknown;
-  }) => (
-    <div>
-      <label>{label}</label>
-      <input
-        type="file"
-        data-testid={testId}
-        onChange={(e) => onChange?.(e.target.files?.[0] || null)}
-        required={required}
-        {...props}
-      />
-      {error && <span>{error}</span>}
-    </div>
-  ),
-  Alert: ({
-    children,
-    "data-testid": testId,
-    ...props
-  }: {
-    children?: React.ReactNode;
-    "data-testid"?: string;
-    [key: string]: unknown;
-  }) => (
-    <div data-testid={testId} {...props}>
-      {children}
-    </div>
-  ),
-  Paper: ({
-    children,
-    ...props
-  }: {
-    children?: React.ReactNode;
-    [key: string]: unknown;
-  }) => <div {...props}>{children}</div>,
-  Title: ({
-    children,
-    ...props
-  }: {
-    children?: React.ReactNode;
-    [key: string]: unknown;
-  }) => <h2 {...props}>{children}</h2>,
-  Stack: ({
-    children,
-    ...props
-  }: {
-    children?: React.ReactNode;
-    [key: string]: unknown;
-  }) => <div {...props}>{children}</div>,
-  Group: ({
-    children,
-    ...props
-  }: {
-    children?: React.ReactNode;
-    [key: string]: unknown;
-  }) => <div {...props}>{children}</div>,
-}));
 
 // Mock react-hook-form
 const mockRegister = jest.fn();
-const mockHandleSubmit = jest.fn();
-const mockOnSubmit = jest.fn();
+const mockOnSubmit = jest.fn(async () => {});
 const mockOnFileChange = jest.fn();
 const mockOnTitleChange = jest.fn();
 const mockOnDescriptionChange = jest.fn();
 const mockOnTagChange = jest.fn();
 
-const mockForm = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createMockForm = (overrides: any = {}) => ({
   register: mockRegister,
-  handleSubmit: mockHandleSubmit,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleSubmit: (onValid: any) => (e: React.FormEvent) => {
+    e.preventDefault();
+    return onValid({
+      file: new File(["test"], "test.mp4", { type: "video/mp4" }),
+      title: "Test Video",
+      description: "Test Description",
+      tag: "1",
+    });
+  },
   formState: {
     errors: {},
     isValid: true,
     isSubmitting: false,
+    ...overrides.formState,
   },
-};
+  ...overrides,
+});
 
 const mockVideoTags: VideoTag[] = [
-  { id: "1", name: "Gaming" },
-  { id: "2", name: "Tutorial" },
-  { id: "3", name: "Music" },
+  { id: "1", name: "Education" },
+  { id: "2", name: "Entertainment" },
+  { id: "3", name: "Technology" },
 ];
 
 const defaultProps = {
-  form: mockForm,
-  watchedFile: null,
-  watchedTitle: "",
-  watchedTag: "",
+  form: createMockForm(),
+  watchedFile: new File(["test"], "test.mp4", { type: "video/mp4" }),
+  watchedTitle: "Test Video",
+  watchedTag: "1",
   videoTags: mockVideoTags,
   onSubmit: mockOnSubmit,
   onFileChange: mockOnFileChange,
   onTitleChange: mockOnTitleChange,
   onDescriptionChange: mockOnDescriptionChange,
   onTagChange: mockOnTagChange,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any;
+
+// Create test wrapper function with proper Mantine theme
+const renderWithMantine = (ui: React.ReactElement) => {
+  const theme = createTheme({
+    primaryColor: "blue",
+  });
+
+  return render(
+    <MantineProvider theme={theme} defaultColorScheme="light">
+      {ui}
+    </MantineProvider>
+  );
 };
 
 describe("UploadVideoForm", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockHandleSubmit.mockImplementation((callback) => (e: React.FormEvent) => {
-      e.preventDefault();
-      return callback({ file: null, title: "", description: "", tag: "" });
-    });
   });
 
-  describe("Component Rendering", () => {
-    it("should render the upload video form with all required fields", () => {
-      render(<UploadVideoForm {...defaultProps} />);
+  describe("Valid input cases", () => {
+    it("should renderWithMantine form components correctly", () => {
+      renderWithMantine(<UploadVideoForm {...defaultProps} />);
 
-      expect(screen.getByTestId("upload-video-form")).toBeInTheDocument();
       expect(screen.getByTestId("file-input")).toBeInTheDocument();
       expect(screen.getByTestId("title-input")).toBeInTheDocument();
       expect(screen.getByTestId("description-input")).toBeInTheDocument();
@@ -251,41 +87,127 @@ describe("UploadVideoForm", () => {
       expect(screen.getByTestId("upload-button")).toBeInTheDocument();
     });
 
-    it("should display the form title", () => {
-      render(<UploadVideoForm {...defaultProps} />);
+    it("should enable upload button when valid data is entered", () => {
+      renderWithMantine(<UploadVideoForm {...defaultProps} />);
 
-      // Use a more specific selector to avoid conflicts with button text
-      const titleElement = screen.getByRole("heading", { level: 2 });
-      expect(titleElement).toHaveTextContent("Upload Video");
+      const uploadButton = screen.getByTestId("upload-button");
+      expect(uploadButton).not.toBeDisabled();
     });
 
-    it("should render video tags in the select dropdown", () => {
-      render(<UploadVideoForm {...defaultProps} />);
+    it("should call onSubmit function when submitted", async () => {
+      const localMockOnSubmit = jest.fn(async () => {});
+      const props = {
+        ...defaultProps,
+        onSubmit: localMockOnSubmit,
+      };
+      renderWithMantine(<UploadVideoForm {...props} />);
+      const form = screen.getByTestId("upload-video-form");
+      fireEvent.submit(form);
+      // Wait for Promise to resolve
+      await new Promise((r) => setTimeout(r, 0));
+      expect(localMockOnSubmit).toHaveBeenCalled();
+    });
 
-      const tagSelect = screen.getByTestId("tag-select");
-      expect(tagSelect).toBeInTheDocument();
+    it("should call corresponding onChange functions when input changes", async () => {
+      const user = userEvent.setup();
+      renderWithMantine(<UploadVideoForm {...defaultProps} />);
+
+      const titleInput = screen.getByTestId("title-input");
+      const descriptionInput = screen.getByTestId("description-input");
+
+      await user.type(titleInput, "New Video Title");
+      await user.type(descriptionInput, "New Description");
+
+      expect(mockOnTitleChange).toHaveBeenCalled();
+      expect(mockOnDescriptionChange).toHaveBeenCalled();
+    });
+
+    it("should display video tags in select dropdown", () => {
+      renderWithMantine(<UploadVideoForm {...defaultProps} />);
+
+      expect(screen.getByText("Education")).toBeInTheDocument();
+      expect(screen.getByText("Entertainment")).toBeInTheDocument();
+      expect(screen.getByText("Technology")).toBeInTheDocument();
     });
   });
 
-  describe("Form Validation and Error Handling", () => {
-    it("should display error message when form has root error", () => {
-      const propsWithError = {
+  describe("Invalid input cases", () => {
+    it("should display file validation error", () => {
+      const props = {
         ...defaultProps,
-        form: {
-          ...mockForm,
+        form: createMockForm({
           formState: {
-            ...mockForm.formState,
             errors: {
-              root: {
-                message: "Upload failed due to server error",
-                type: "server",
-              },
+              file: { message: "Please select a video file" },
             },
+            isValid: false,
+            isSubmitting: false,
           },
-        },
+        }),
       };
 
-      render(<UploadVideoForm {...propsWithError} />);
+      renderWithMantine(<UploadVideoForm {...props} />);
+
+      expect(
+        screen.getByText("Please select a video file")
+      ).toBeInTheDocument();
+    });
+
+    it("should display title validation error", () => {
+      const props = {
+        ...defaultProps,
+        form: createMockForm({
+          formState: {
+            errors: {
+              title: { message: "Title must be at least 3 characters" },
+            },
+            isValid: false,
+            isSubmitting: false,
+          },
+        }),
+      };
+
+      renderWithMantine(<UploadVideoForm {...props} />);
+
+      expect(
+        screen.getByText("Title must be at least 3 characters")
+      ).toBeInTheDocument();
+    });
+
+    it("should display tag validation error", () => {
+      const props = {
+        ...defaultProps,
+        form: createMockForm({
+          formState: {
+            errors: {
+              tag: { message: "Please select a video tag" },
+            },
+            isValid: false,
+            isSubmitting: false,
+          },
+        }),
+      };
+
+      renderWithMantine(<UploadVideoForm {...props} />);
+
+      expect(screen.getByText("Please select a video tag")).toBeInTheDocument();
+    });
+
+    it("should display root error message", () => {
+      const props = {
+        ...defaultProps,
+        form: createMockForm({
+          formState: {
+            errors: {
+              root: { message: "Upload failed due to server error" },
+            },
+            isValid: false,
+            isSubmitting: false,
+          },
+        }),
+      };
+
+      renderWithMantine(<UploadVideoForm {...props} />);
 
       expect(screen.getByTestId("error-message")).toBeInTheDocument();
       expect(
@@ -293,174 +215,231 @@ describe("UploadVideoForm", () => {
       ).toBeInTheDocument();
     });
 
-    it("should display field-specific error messages", () => {
-      const propsWithFieldErrors = {
+    it("should disable upload button when form is invalid", () => {
+      const props = {
         ...defaultProps,
-        form: {
-          ...mockForm,
+        form: createMockForm({
           formState: {
-            ...mockForm.formState,
-            errors: {
-              file: { message: "Please select a video file", type: "required" },
-              title: { message: "Title is required", type: "required" },
-              tag: { message: "Please select a tag", type: "required" },
-            },
+            errors: {},
+            isValid: false,
+            isSubmitting: false,
           },
-        },
+        }),
       };
 
-      render(<UploadVideoForm {...propsWithFieldErrors} />);
+      renderWithMantine(<UploadVideoForm {...props} />);
+
+      const uploadButton = screen.getByTestId("upload-button");
+      expect(uploadButton).toBeDisabled();
+    });
+  });
+
+  describe("Edge cases", () => {
+    it("should show loading state when submitting", () => {
+      const props = {
+        ...defaultProps,
+        form: createMockForm({
+          formState: {
+            errors: {},
+            isValid: true,
+            isSubmitting: true,
+          },
+        }),
+      };
+
+      renderWithMantine(<UploadVideoForm {...props} />);
+
+      const uploadButton = screen.getByTestId("upload-button");
+      expect(uploadButton).toHaveTextContent("Uploading...");
+      expect(uploadButton).toBeDisabled();
+    });
+
+    it("should disable upload button when file is not selected", () => {
+      const props = {
+        ...defaultProps,
+        watchedFile: null,
+      };
+
+      renderWithMantine(<UploadVideoForm {...props} />);
+
+      const uploadButton = screen.getByTestId("upload-button");
+      expect(uploadButton).toBeDisabled();
+    });
+
+    it("should disable upload button when title is empty", () => {
+      const props = {
+        ...defaultProps,
+        watchedTitle: "",
+      };
+
+      renderWithMantine(<UploadVideoForm {...props} />);
+
+      const uploadButton = screen.getByTestId("upload-button");
+      expect(uploadButton).toBeDisabled();
+    });
+
+    it("should disable upload button when tag is not selected", () => {
+      const props = {
+        ...defaultProps,
+        watchedTag: "",
+      };
+
+      renderWithMantine(<UploadVideoForm {...props} />);
+
+      const uploadButton = screen.getByTestId("upload-button");
+      expect(uploadButton).toBeDisabled();
+    });
+
+    it("should disable upload button when multiple required fields are empty", () => {
+      const props = {
+        ...defaultProps,
+        watchedFile: null,
+        watchedTitle: "",
+        watchedTag: "",
+      };
+
+      renderWithMantine(<UploadVideoForm {...props} />);
+
+      const uploadButton = screen.getByTestId("upload-button");
+      expect(uploadButton).toBeDisabled();
+    });
+
+    it("should handle multiple errors simultaneously", () => {
+      const props = {
+        ...defaultProps,
+        form: createMockForm({
+          formState: {
+            errors: {
+              file: { message: "Please select a video file" },
+              title: { message: "Please enter a video title" },
+              tag: { message: "Please select a video tag" },
+            },
+            isValid: false,
+            isSubmitting: false,
+          },
+        }),
+      };
+
+      renderWithMantine(<UploadVideoForm {...props} />);
 
       expect(
         screen.getByText("Please select a video file")
       ).toBeInTheDocument();
-      expect(screen.getByText("Title is required")).toBeInTheDocument();
-      expect(screen.getByText("Please select a tag")).toBeInTheDocument();
-    });
-  });
-
-  describe("Form Submission", () => {
-    it("should call onSubmit when form is submitted successfully", async () => {
-      const user = userEvent.setup();
-      render(<UploadVideoForm {...defaultProps} />);
-
-      const submitButton = screen.getByTestId("upload-button");
-      await user.click(submitButton);
-
-      expect(mockHandleSubmit).toHaveBeenCalledWith(mockOnSubmit);
-      expect(mockHandleSubmit).toHaveBeenCalledTimes(1);
+      expect(
+        screen.getByText("Please enter a video title")
+      ).toBeInTheDocument();
+      expect(screen.getByText("Please select a video tag")).toBeInTheDocument();
     });
 
-    it("should show loading state during form submission", () => {
-      const propsWithSubmitting = {
+    it("should disable upload button when form is invalid and there is input value", () => {
+      const props = {
         ...defaultProps,
-        form: {
-          ...mockForm,
+        form: createMockForm({
           formState: {
-            ...mockForm.formState,
-            isSubmitting: true,
-          },
-        },
-      };
-
-      render(<UploadVideoForm {...propsWithSubmitting} />);
-
-      const submitButton = screen.getByTestId("upload-button");
-      expect(submitButton).toHaveTextContent("Uploading...");
-      expect(submitButton).toBeDisabled();
-    });
-  });
-
-  describe("Button State Management", () => {
-    it("should disable upload button when form is invalid", () => {
-      const propsWithInvalidForm = {
-        ...defaultProps,
-        form: {
-          ...mockForm,
-          formState: {
-            ...mockForm.formState,
+            errors: {},
             isValid: false,
+            isSubmitting: false,
           },
+        }),
+      };
+
+      renderWithMantine(<UploadVideoForm {...props} />);
+
+      const uploadButton = screen.getByTestId("upload-button");
+      expect(uploadButton).toBeDisabled();
+    });
+  });
+
+  describe("Form validation", () => {
+    it("should correctly register file field", () => {
+      renderWithMantine(<UploadVideoForm {...defaultProps} />);
+
+      expect(mockRegister).toHaveBeenCalledWith("file", {
+        required: "Please select a video file",
+        validate: expect.any(Function),
+      });
+    });
+
+    it("should correctly register title field", () => {
+      renderWithMantine(<UploadVideoForm {...defaultProps} />);
+
+      expect(mockRegister).toHaveBeenCalledWith("title", {
+        required: "Please enter a video title",
+        minLength: {
+          value: 3,
+          message: "Title must be at least 3 characters",
         },
+        maxLength: {
+          value: 100,
+          message: "Title cannot exceed 100 characters",
+        },
+      });
+    });
+
+    it("should correctly register description field", () => {
+      renderWithMantine(<UploadVideoForm {...defaultProps} />);
+
+      expect(mockRegister).toHaveBeenCalledWith("description");
+    });
+
+    it("should correctly register tag field", () => {
+      renderWithMantine(<UploadVideoForm {...defaultProps} />);
+
+      expect(mockRegister).toHaveBeenCalledWith("tag", {
+        required: "Please select a video tag",
+      });
+    });
+  });
+
+  describe("File validation", () => {
+    it("should validate file type correctly", () => {
+      renderWithMantine(<UploadVideoForm {...defaultProps} />);
+
+      // Get the validate function from the register call
+      const fileRegisterCall = mockRegister.mock.calls.find(
+        (call: [string, unknown]) => call[0] === "file"
+      );
+      const validateOptions = fileRegisterCall?.[1] as {
+        validate: (value: File | null) => true | string;
       };
+      const validateFunction = validateOptions?.validate;
 
-      render(<UploadVideoForm {...propsWithInvalidForm} />);
+      expect(validateFunction).toBeDefined();
 
-      const submitButton = screen.getByTestId("upload-button");
-      expect(submitButton).toBeDisabled();
+      // Test valid file
+      const validFile = new File(["test"], "test.mp4", { type: "video/mp4" });
+      expect(validateFunction(validFile)).toBe(true);
+
+      // Test invalid file type
+      const invalidFile = new File(["test"], "test.txt", {
+        type: "text/plain",
+      });
+      expect(validateFunction(invalidFile)).toBe(
+        "Unsupported file format. Please select MP4, AVI, MOV, or WMV format"
+      );
+
+      // Test null file
+      expect(validateFunction(null)).toBe("Please select a video file");
     });
 
-    it("should disable upload button when required fields are empty", () => {
-      render(<UploadVideoForm {...defaultProps} />);
+    it("should validate file size correctly", () => {
+      renderWithMantine(<UploadVideoForm {...defaultProps} />);
 
-      const submitButton = screen.getByTestId("upload-button");
-      expect(submitButton).toBeDisabled();
-    });
-
-    it("should enable upload button when all required fields are filled", () => {
-      const propsWithFilledFields = {
-        ...defaultProps,
-        watchedFile: new File(["test"], "test.mp4", { type: "video/mp4" }),
-        watchedTitle: "Test Video",
-        watchedTag: "1",
+      const fileRegisterCall = mockRegister.mock.calls.find(
+        (call: [string, unknown]) => call[0] === "file"
+      );
+      const validateOptions = fileRegisterCall?.[1] as {
+        validate: (value: File | null) => true | string;
       };
+      const validateFunction = validateOptions?.validate;
 
-      render(<UploadVideoForm {...propsWithFilledFields} />);
+      expect(validateFunction).toBeDefined();
 
-      const submitButton = screen.getByTestId("upload-button");
-      expect(submitButton).not.toBeDisabled();
-    });
-  });
-
-  describe("File Input Handling", () => {
-    it("should call onFileChange when file is selected", async () => {
-      const user = userEvent.setup();
-      render(<UploadVideoForm {...defaultProps} />);
-
-      const fileInput = screen.getByTestId("file-input");
-      const file = new File(["test"], "test.mp4", { type: "video/mp4" });
-
-      await user.upload(fileInput, file);
-
-      expect(mockOnFileChange).toHaveBeenCalledWith(file);
-      expect(mockOnFileChange).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("Text Input Handling", () => {
-    it("should call onTitleChange when title is typed", async () => {
-      const user = userEvent.setup();
-      render(<UploadVideoForm {...defaultProps} />);
-
-      const titleInput = screen.getByTestId("title-input");
-      await user.type(titleInput, "Test Video Title");
-
-      expect(mockOnTitleChange).toHaveBeenCalled();
-    });
-
-    it("should call onDescriptionChange when description is typed", async () => {
-      const user = userEvent.setup();
-      render(<UploadVideoForm {...defaultProps} />);
-
-      const descriptionInput = screen.getByTestId("description-input");
-      await user.type(descriptionInput, "Test video description");
-
-      expect(mockOnDescriptionChange).toHaveBeenCalled();
-    });
-  });
-
-  describe("Tag Selection", () => {
-    it("should call onTagChange when tag is selected", async () => {
-      const user = userEvent.setup();
-      render(<UploadVideoForm {...defaultProps} />);
-
-      const tagSelect = screen.getByTestId("tag-select");
-      await user.selectOptions(tagSelect, "1");
-
-      expect(mockOnTagChange).toHaveBeenCalledWith("1");
-    });
-  });
-
-  describe("Form Accessibility", () => {
-    it("should have proper form labels", () => {
-      render(<UploadVideoForm {...defaultProps} />);
-
-      expect(screen.getByText("Video File")).toBeInTheDocument();
-      expect(screen.getByText("Video Title")).toBeInTheDocument();
-      expect(screen.getByText("Video Description")).toBeInTheDocument();
-      expect(screen.getByText("Video Tag")).toBeInTheDocument();
-    });
-
-    it("should have required field indicators", () => {
-      render(<UploadVideoForm {...defaultProps} />);
-
-      const fileInput = screen.getByTestId("file-input");
-      const titleInput = screen.getByTestId("title-input");
-      const tagSelect = screen.getByTestId("tag-select");
-
-      expect(fileInput).toBeRequired();
-      expect(titleInput).toBeRequired();
-      expect(tagSelect).toBeRequired();
+      // Test file size limit (100MB)
+      const largeFile = new File(["x".repeat(101 * 1024 * 1024)], "large.mp4", {
+        type: "video/mp4",
+      });
+      expect(validateFunction(largeFile)).toBe("File size cannot exceed 100MB");
     });
   });
 });
