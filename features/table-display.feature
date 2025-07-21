@@ -26,3 +26,14 @@ Feature: Table Display and Structure
   Scenario: User can see more table columns by scrolling to the right
     When I scroll to the right of the table
     Then I should see the next 10 columns in the table
+
+  Scenario: User can see virtualized rendering with large dataset
+    Given I have a table with 1000 lines of data
+    When I view the table with virtualized rendering enabled
+    Then I should see only visible rows rendered
+    And I should see the table container with proper height
+
+  Scenario: User can disable virtualized rendering
+    Given I have a table with 100 lines of data
+    When I view the table with virtualized rendering disabled
+    Then I should see all rows rendered

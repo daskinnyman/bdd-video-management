@@ -2,9 +2,14 @@
 
 import React, { useState } from "react";
 import { DataTable } from "../components/data-table";
-import { ColumnDef } from "@tanstack/react-table";
+import {
+  ColumnDef,
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  SortingState,
+} from "@tanstack/react-table";
 import { Button, Group, Paper, Title, Badge } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
 
 type DemoData = {
   id: number;
@@ -172,9 +177,85 @@ const generateDemoData = (count: number): DemoData[] => {
   }));
 };
 
+// 新增簡易型 table 欄位與資料
+const simpleColumns: ColumnDef<{
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}>[] = [
+  { accessorKey: "id", header: "ID", enableSorting: true },
+  { accessorKey: "name", header: "姓名", enableSorting: true },
+  { accessorKey: "email", header: "Email" },
+  { accessorKey: "role", header: "角色", enableSorting: true },
+  { accessorKey: "createdAt", header: "建立時間", enableSorting: true },
+];
+
+const simpleData = [
+  {
+    id: 1,
+    name: "王小明",
+    email: "ming@example.com",
+    role: "管理員",
+    createdAt: "2024-06-01",
+  },
+  {
+    id: 2,
+    name: "李小美",
+    email: "mei@example.com",
+    role: "使用者",
+    createdAt: "2024-06-02",
+  },
+  {
+    id: 3,
+    name: "陳大華",
+    email: "hua@example.com",
+    role: "訪客",
+    createdAt: "2024-06-03",
+  },
+  {
+    id: 4,
+    name: "張三",
+    email: "san@example.com",
+    role: "管理員",
+    createdAt: "2024-06-04",
+  },
+  {
+    id: 5,
+    name: "林小強",
+    email: "qiang@example.com",
+    role: "使用者",
+    createdAt: "2024-06-05",
+  },
+];
+
 export default function TableDemoPage() {
   const [data, setData] = useState<DemoData[]>(generateDemoData(50));
   const [isLoading, setIsLoading] = useState(false);
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  // 新增簡易型 table 的狀態
+  const [simpleSorting, setSimpleSorting] = useState<SortingState>([]);
+  const simpleTable = useReactTable({
+    data: simpleData,
+    columns: simpleColumns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSimpleSorting,
+    state: { sorting: simpleSorting },
+  });
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
+  });
 
   const handleLoadMore = () => {
     setIsLoading(true);
@@ -182,11 +263,6 @@ export default function TableDemoPage() {
       const newData = generateDemoData(10);
       setData((prev) => [...prev, ...newData]);
       setIsLoading(false);
-      notifications.show({
-        title: "載入完成",
-        message: "已載入 10 筆新資料",
-        color: "green",
-      });
     }, 1000);
   };
 
@@ -206,11 +282,6 @@ export default function TableDemoPage() {
       tags: ["新功能"],
     };
     setData((prev) => [newItem, ...prev]);
-    notifications.show({
-      title: "新增成功",
-      message: "已新增一筆資料",
-      color: "blue",
-    });
   };
 
   return (
@@ -235,12 +306,21 @@ export default function TableDemoPage() {
 
       <Paper shadow="xs" p="md">
         <DataTable
-          data={data}
-          columns={columns}
+          table={table}
           onBottomReached={handleLoadMore}
           isLoading={isLoading}
           emptyMessage="目前沒有資料"
           containerHeight={600}
+        />
+      </Paper>
+
+      {/* 新增簡易型 table 區塊 */}
+      <Paper shadow="xs" p="md" mt="xl">
+        <h3 style={{ marginBottom: 16 }}>簡易型五欄位資料表</h3>
+        <DataTable
+          table={simpleTable}
+          emptyMessage="無資料"
+          containerHeight={350}
         />
       </Paper>
     </div>

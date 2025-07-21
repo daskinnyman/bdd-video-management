@@ -3,8 +3,15 @@ import { screen, waitFor, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { jest } from "@jest/globals";
 import { DataTable } from "../src/app/components/data-table";
-import { ColumnDef } from "@tanstack/react-table";
+import {
+  ColumnDef,
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  SortingState,
+} from "@tanstack/react-table";
 import { MantineProvider } from "@mantine/core";
+import React, { useState } from "react";
 
 // Mock functions
 const mockViewTable = jest.fn();
@@ -52,6 +59,38 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <MantineProvider>{children}</MantineProvider>
 );
 
+// 測試元件，用於建立 table instance
+const TestDataTable = ({
+  data,
+  virtualized = true,
+}: {
+  data: TestData[];
+  virtualized?: boolean;
+}) => {
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
+  });
+
+  return (
+    <DataTable
+      table={table}
+      onBottomReached={mockViewTable}
+      virtualized={virtualized}
+      containerHeight={300}
+      rowHeight={52}
+    />
+  );
+};
+
 const feature = loadFeature("./features/table-display.feature");
 
 defineFeature(feature, (test) => {
@@ -69,11 +108,7 @@ defineFeature(feature, (test) => {
     when("I view the table", () => {
       render(
         <TestWrapper>
-          <DataTable
-            data={tableData}
-            columns={columns}
-            onBottomReached={mockViewTable}
-          />
+          <TestDataTable data={tableData} />
         </TestWrapper>
       );
     });
@@ -100,11 +135,7 @@ defineFeature(feature, (test) => {
     when("I view the table", () => {
       render(
         <TestWrapper>
-          <DataTable
-            data={tableData}
-            columns={columns}
-            onBottomReached={mockViewTable}
-          />
+          <TestDataTable data={tableData} />
         </TestWrapper>
       );
     });
@@ -132,11 +163,7 @@ defineFeature(feature, (test) => {
     when("I view the table", () => {
       render(
         <TestWrapper>
-          <DataTable
-            data={tableData}
-            columns={columns}
-            onBottomReached={mockViewTable}
-          />
+          <TestDataTable data={tableData} />
         </TestWrapper>
       );
     });
@@ -172,11 +199,7 @@ defineFeature(feature, (test) => {
     when("I view the table", () => {
       render(
         <TestWrapper>
-          <DataTable
-            data={tableData}
-            columns={columns}
-            onBottomReached={mockLoadMoreData}
-          />
+          <TestDataTable data={tableData} />
         </TestWrapper>
       );
     });
@@ -203,11 +226,7 @@ defineFeature(feature, (test) => {
       const tableData = generateTestData(10);
       render(
         <TestWrapper>
-          <DataTable
-            data={tableData}
-            columns={columns}
-            onBottomReached={mockViewTable}
-          />
+          <TestDataTable data={tableData} />
         </TestWrapper>
       );
 
@@ -221,6 +240,60 @@ defineFeature(feature, (test) => {
         expect(mockScrollTable).toHaveBeenCalledWith("right");
         expect(mockScrollTable).toHaveBeenCalledTimes(1);
       });
+    });
+  });
+
+  test("User can see virtualized rendering with large dataset", ({
+    given,
+    when,
+    then,
+  }) => {
+    let tableData: TestData[] = [];
+
+    given("I have a table with 1000 lines of data", () => {
+      tableData = generateTestData(1000);
+    });
+
+    when("I view the table with virtualized rendering enabled", () => {
+      render(
+        <TestWrapper>
+          <TestDataTable data={tableData} virtualized={true} />
+        </TestWrapper>
+      );
+    });
+
+    then("I should see only visible rows rendered", () => {
+      // 驗證只有可見的行被渲染（大約 20-30 行，而不是全部 1000 行）
+      const visibleCells = screen.getAllByTestId(/^cell-\d+-title$/);
+      expect(visibleCells.length).toBeLessThan(50); // 應該遠少於 1000
+      expect(visibleCells.length).toBeGreaterThan(0); // 但應該有資料顯示
+    });
+
+    then("I should see the table container with proper height", () => {
+      const tableContainer = screen.getByTestId("table-container");
+      expect(tableContainer).toBeInTheDocument();
+    });
+  });
+
+  test("User can disable virtualized rendering", ({ given, when, then }) => {
+    let tableData: TestData[] = [];
+
+    given("I have a table with 100 lines of data", () => {
+      tableData = generateTestData(100);
+    });
+
+    when("I view the table with virtualized rendering disabled", () => {
+      render(
+        <TestWrapper>
+          <TestDataTable data={tableData} virtualized={false} />
+        </TestWrapper>
+      );
+    });
+
+    then("I should see all rows rendered", () => {
+      // 驗證所有行都被渲染
+      const visibleCells = screen.getAllByTestId(/^cell-\d+-title$/);
+      expect(visibleCells.length).toBe(100);
     });
   });
 });
