@@ -1,0 +1,15 @@
+---
+description: 
+globs: src/app/components/data-table.tsx
+alwaysApply: false
+---
+- Use [Mantin table](mdc:https:/mantine.dev/core/table) and [Tanstack Table](mdc:https:/tanstack.com/table/latest) to create table UI 
+- The component should receive [table instance](mdc:https:/tanstack.com/table/latest/docs/api/core/table#usereacttable--createsolidtable--useqwiktable--usevuetable--createsveltetable) as a prop called `table` from Tanstack Table
+- The table should fill the width and its height of its parent container (`w: 100%` `h:100%`) 
+- When column count exceeds visible width, the table should support horizontal scrolling using `<ScrollArea>`
+- Implement virtualized rendering with infinite scroll as in [virtalized list with infinite scroll](https://github.com/TanStack/table/tree/main/examples/react/virtualized-infinite-scrolling)
+- Each column should be defined with [column-defs](https://tanstack.com/table/latest/docs/guide/column-defs)
+- The component should receive a prop named `onBottomReached`, which triggers when user scrolls to the bottom
+- While loading more data, display 3 3 rows of `<Skeleton />` rows appended to the bottom of the table
+- Every table cell should include a unique `data-testid`, such as `data-testid="cell-{rowIndex}-{columnKey}"`
+- If a column has `enableSorting: true`, it should render a sort icon in the header and trigger sorting when clicked
