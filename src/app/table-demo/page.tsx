@@ -7,9 +7,20 @@ import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
+  getFilteredRowModel,
   SortingState,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
-import { Button, Group, Paper, Title, Badge } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Paper,
+  Title,
+  Badge,
+  Tooltip,
+  Text,
+  Flex,
+} from "@mantine/core";
 
 type DemoData = {
   id: number;
@@ -31,21 +42,42 @@ const columns: ColumnDef<DemoData>[] = [
     accessorKey: "id",
     header: "ID",
     enableSorting: true,
+    meta: {
+      enableFilter: true,
+    },
   },
   {
     accessorKey: "title",
     header: "標題",
     enableSorting: true,
+    meta: {
+      enableFilter: true,
+    },
   },
   {
     accessorKey: "description",
     header: "描述",
+    meta: {
+      enableFilter: true,
+    },
+    cell: ({ getValue }) => {
+      const description = getValue() as string;
+      return (
+        <Tooltip label={description} position="top" withArrow>
+          <Text size="sm" truncate data-testid="truncated-text-description">
+            {description}
+          </Text>
+        </Tooltip>
+      );
+    },
   },
   {
     accessorKey: "status",
     header: "狀態",
     enableSorting: true,
-
+    meta: {
+      enableFilter: true,
+    },
     cell: ({ getValue }) => {
       const status = getValue() as string;
       if (!status) return "-";
@@ -64,6 +96,9 @@ const columns: ColumnDef<DemoData>[] = [
     accessorKey: "priority",
     header: "優先級",
     enableSorting: true,
+    meta: {
+      enableFilter: true,
+    },
     cell: ({ getValue }) => {
       const priority = getValue() as string;
       if (!priority) return "-";
@@ -80,11 +115,17 @@ const columns: ColumnDef<DemoData>[] = [
     accessorKey: "assignee",
     header: "負責人",
     enableSorting: true,
+    meta: {
+      enableFilter: true,
+    },
   },
   {
     accessorKey: "department",
     header: "部門",
     enableSorting: true,
+    meta: {
+      enableFilter: true,
+    },
   },
   {
     accessorKey: "budget",
@@ -135,7 +176,7 @@ const columns: ColumnDef<DemoData>[] = [
   },
 ];
 
-const generateDemoData = (count: number): DemoData[] => {
+const generateDemoData = (count: number, startAt: number = 0): DemoData[] => {
   const statuses = ["進行中", "已完成", "待處理", "已暫停"];
   const priorities = ["高", "中", "低"];
   const assignees = ["張三", "李四", "王五", "趙六", "錢七"];
@@ -151,137 +192,74 @@ const generateDemoData = (count: number): DemoData[] => {
     "修復",
   ];
 
-  return Array.from({ length: count }, (_, index) => ({
-    id: index + 1,
-    title: `專案 ${index + 1} - ${
-      ["網站開發", "APP開發", "系統整合", "資料分析", "AI模型"][index % 5]
-    }`,
-    description: `這是專案 ${
-      index + 1
-    } 的詳細描述，包含專案的目標、範圍和預期成果。這是一個重要的專案，需要團隊協作完成。`,
-    status: statuses[index % statuses.length] || "待處理",
-    priority: priorities[index % priorities.length] || "中",
-    assignee: assignees[index % assignees.length] || "張三",
-    department: departments[index % departments.length] || "研發部",
-    budget: Math.floor(Math.random() * 100000) + 10000,
-    progress: Math.floor(Math.random() * 100),
-    createdAt: new Date(
-      Date.now() - Math.random() * 10000000000
-    ).toLocaleDateString(),
-    updatedAt: new Date(
-      Date.now() - Math.random() * 5000000000
-    ).toLocaleDateString(),
-    tags: tags
-      .slice(0, Math.floor(Math.random() * 4) + 1)
-      .sort(() => Math.random() - 0.5) || ["一般"],
-  }));
+  // 使用固定的種子來確保 SSR 和客戶端生成相同的數據
+  const seededRandom = (seed: number) => {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  };
+
+  return Array.from({ length: count }, (_, index) => {
+    const baseSeed = index + startAt;
+    const budgetSeed = baseSeed * 7;
+    const progressSeed = baseSeed * 11;
+    const dateSeed = baseSeed * 13;
+
+    return {
+      id: index + startAt + 1,
+      title: `專案 ${index + 1} - ${
+        ["網站開發", "APP開發", "系統整合", "資料分析", "AI模型"][index % 5]
+      }`,
+      description: `這是專案 ${
+        index + startAt
+      } 的詳細描述，包含專案的目標、範圍和預期成果。這是一個重要的專案，需要團隊協作完成。`,
+      status: statuses[index % statuses.length] || "待處理",
+      priority: priorities[index % priorities.length] || "中",
+      assignee: assignees[index % assignees.length] || "張三",
+      department: departments[index % departments.length] || "研發部",
+      budget: Math.floor(seededRandom(budgetSeed) * 100000) + 10000,
+      progress: Math.floor(seededRandom(progressSeed) * 100),
+      createdAt: new Date(Date.now() - seededRandom(dateSeed) * 10000000000)
+        .toISOString()
+        .split("T")[0], // 使用 ISO 格式確保一致性
+      updatedAt: new Date(Date.now() - seededRandom(dateSeed + 1) * 5000000000)
+        .toISOString()
+        .split("T")[0], // 使用 ISO 格式確保一致性
+      tags: tags
+        .slice(0, Math.floor(seededRandom(baseSeed * 17) * 4) + 1)
+        .sort(() => seededRandom(baseSeed * 19) - 0.5) || ["一般"],
+    };
+  });
 };
-
-// 新增簡易型 table 欄位與資料
-const simpleColumns: ColumnDef<{
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  createdAt: string;
-}>[] = [
-  { accessorKey: "id", header: "ID", enableSorting: true },
-  { accessorKey: "name", header: "姓名", enableSorting: true },
-  { accessorKey: "email", header: "Email" },
-  { accessorKey: "role", header: "角色", enableSorting: true },
-  { accessorKey: "createdAt", header: "建立時間", enableSorting: true },
-];
-
-const simpleData = [
-  {
-    id: 1,
-    name: "王小明",
-    email: "ming@example.com",
-    role: "管理員",
-    createdAt: "2024-06-01",
-  },
-  {
-    id: 2,
-    name: "李小美",
-    email: "mei@example.com",
-    role: "使用者",
-    createdAt: "2024-06-02",
-  },
-  {
-    id: 3,
-    name: "陳大華",
-    email: "hua@example.com",
-    role: "訪客",
-    createdAt: "2024-06-03",
-  },
-  {
-    id: 4,
-    name: "張三",
-    email: "san@example.com",
-    role: "管理員",
-    createdAt: "2024-06-04",
-  },
-  {
-    id: 5,
-    name: "林小強",
-    email: "qiang@example.com",
-    role: "使用者",
-    createdAt: "2024-06-05",
-  },
-];
 
 export default function TableDemoPage() {
   const [data, setData] = useState<DemoData[]>(generateDemoData(50));
   const [isLoading, setIsLoading] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
-
-  // 新增簡易型 table 的狀態
-  const [simpleSorting, setSimpleSorting] = useState<SortingState>([]);
-  const simpleTable = useReactTable({
-    data: simpleData,
-    columns: simpleColumns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSimpleSorting,
-    state: { sorting: simpleSorting },
-  });
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     state: {
       sorting,
+      columnFilters,
     },
   });
 
   const handleLoadMore = () => {
+    if (isLoading) return;
     setIsLoading(true);
     setTimeout(() => {
-      const newData = generateDemoData(10);
+      const newData = generateDemoData(10, data.length);
       setData((prev) => [...prev, ...newData]);
       setIsLoading(false);
     }, 1000);
-  };
-
-  const handleAddData = () => {
-    const newItem: DemoData = {
-      id: data.length + 1,
-      title: `新專案 ${data.length + 1}`,
-      description: "這是一個新專案的描述",
-      status: "待處理",
-      priority: "中",
-      assignee: "張三",
-      department: "研發部",
-      budget: 50000,
-      progress: 0,
-      createdAt: new Date().toLocaleDateString(),
-      updatedAt: new Date().toLocaleDateString(),
-      tags: ["新功能"],
-    };
-    setData((prev) => [newItem, ...prev]);
   };
 
   return (
@@ -290,14 +268,6 @@ export default function TableDemoPage() {
         <Title order={2} mb="md">
           資料表格展示 - 多欄位版本
         </Title>
-        <Group mb="md">
-          <Button onClick={handleAddData} color="blue">
-            新增資料
-          </Button>
-          <Button onClick={() => setData([])} color="red" variant="outline">
-            清空資料
-          </Button>
-        </Group>
         <p style={{ color: "#666", fontSize: "14px" }}>
           此表格包含 12
           個欄位，支援水平滾動。您可以點擊欄位標頭進行排序，滾動到底部載入更多資料。
@@ -305,22 +275,23 @@ export default function TableDemoPage() {
       </Paper>
 
       <Paper shadow="xs" p="md">
+        <Flex justify="flex-end" align="center" py="md">
+          <Button
+            onClick={() => setShowFilters(!showFilters)}
+            color="gray"
+            variant="outline"
+            data-testid="toggle-all-filters"
+          >
+            {showFilters ? "隱藏篩選" : "顯示篩選"}
+          </Button>
+        </Flex>
         <DataTable
           table={table}
           onBottomReached={handleLoadMore}
           isLoading={isLoading}
           emptyMessage="目前沒有資料"
           containerHeight={600}
-        />
-      </Paper>
-
-      {/* 新增簡易型 table 區塊 */}
-      <Paper shadow="xs" p="md" mt="xl">
-        <h3 style={{ marginBottom: 16 }}>簡易型五欄位資料表</h3>
-        <DataTable
-          table={simpleTable}
-          emptyMessage="無資料"
-          containerHeight={350}
+          showFilters={showFilters}
         />
       </Paper>
     </div>

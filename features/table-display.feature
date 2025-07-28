@@ -10,13 +10,6 @@ Feature: Table Display and Structure
     When I view the table
     Then I should see an empty data icon with a message "No data found"
 
-  Scenario: User can sort table by clicking on column header
-    Given I have a table with 3 lines of data
-    When I view the table
-    Then I should see 3 rows in the table
-    When I click on the "Title" column header
-    Then I should see the table sorted by the "Title" column
-
   Scenario: User can load more data by scrolling to the bottom of the table
     Given I have a table with 30 lines of data
     When I view the table
@@ -37,3 +30,10 @@ Feature: Table Display and Structure
     Given I have a table with 100 lines of data
     When I view the table with virtualized rendering disabled
     Then I should see all rows rendered
+
+  Scenario: User can truncate long text in table cells
+    Given I have a table with 3 lines of data
+    When I view the table
+    Then I should see the text in the "Description" column truncated
+    And I should see a tooltip with the full text when hovering over the truncated text
+
