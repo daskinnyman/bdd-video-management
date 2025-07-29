@@ -5,7 +5,7 @@ import { Notifications } from "@mantine/notifications";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "./globals.css";
-import { MSWProvider } from "../components/msw-provider";
+import { Providers } from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,11 +36,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable}`}
         suppressHydrationWarning
       >
-        <MantineProvider defaultColorScheme="light">
-          <Notifications />
-          <MSWProvider />
-          {children}
-        </MantineProvider>
+        <Providers>
+          <MantineProvider defaultColorScheme="light">
+            <Notifications />
+            {children}
+          </MantineProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -5,7 +5,65 @@ interface LoginRequest {
   password: string;
 }
 
+interface UploadVideoRequest {
+  title: string;
+  description: string;
+  tag: string;
+  fileName: string;
+  fileSize: number;
+}
+
+interface UpdateVideoRequest {
+  id: string;
+  title: string;
+  description: string;
+  tags: string[];
+}
+
+// 模擬影片資料 - 使用 let 讓它可以被修改
+let mockVideos = [
+  {
+    id: "video-1",
+    title: "React 基礎教學 1",
+    description: "深入淺出地介紹 React 的核心概念和實作技巧",
+    status: "published" as const,
+    uploadDate: "2024-01-15",
+    tags: ["教育", "科技"],
+    thumbnailUrl: "https://picsum.photos/300/200?random=1",
+    duration: "15:30",
+    views: 1250,
+  },
+  {
+    id: "video-2",
+    title: "TypeScript 進階技巧 2",
+    description: "學習 TypeScript 的高級功能和最佳實踐",
+    status: "pending" as const,
+    uploadDate: "2024-01-20",
+    tags: ["教育", "科技"],
+    thumbnailUrl: "https://picsum.photos/300/200?random=2",
+    duration: "22:15",
+    views: 890,
+  },
+  {
+    id: "video-3",
+    title: "Next.js 13 新功能介紹 3",
+    description: "探索 Next.js 13 的新特性和改進",
+    status: "rejected" as const,
+    uploadDate: "2024-01-25",
+    tags: ["科技"],
+    thumbnailUrl: "https://picsum.photos/300/200?random=3",
+    duration: "18:45",
+    views: 567,
+  },
+];
+
 export const handlers = [
+  // 測試 API handler
+  http.get("/api/test", () => {
+    console.log("MSW test handler called");
+    return HttpResponse.json({ message: "MSW is working!" });
+  }),
+
   // 登入 API handler
   http.post("/api/login", async ({ request }) => {
     const { email, password } = (await request.json()) as LoginRequest;
@@ -50,6 +108,142 @@ export const handlers = [
       },
       { status: 400 }
     );
+  }),
+
+  // 上傳影片 API handler
+  http.post("/api/upload-video", async ({ request }) => {
+    const { title, description, tag, fileName, fileSize } =
+      (await request.json()) as UploadVideoRequest;
+
+    // 模擬網路延遲
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    // 模擬上傳處理邏輯
+    console.log("Uploading video:", {
+      title,
+      description,
+      tag,
+      fileName,
+      fileSize,
+    });
+
+    // 模擬成功回應
+    return HttpResponse.json({
+      success: true,
+      message: "Video uploaded successfully",
+      videoId: `video_${Date.now()}`,
+    });
+  }),
+
+  // 獲取影片列表 API handler
+  http.get("/api/videos", async ({ request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const limit = parseInt(url.searchParams.get("limit") || "10");
+    const status = url.searchParams.get("status");
+
+    // 模擬網路延遲
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    let filteredVideos = [...mockVideos];
+
+    // 根據狀態篩選
+    if (status && status !== "all") {
+      filteredVideos = filteredVideos.filter(
+        (video) => video.status === status
+      );
+    }
+
+    // 分頁
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedVideos = filteredVideos.slice(startIndex, endIndex);
+
+    console.log("Fetching videos:", {
+      page,
+      limit,
+      status,
+      total: filteredVideos.length,
+      returned: paginatedVideos.length,
+    });
+
+    return HttpResponse.json({
+      success: true,
+      data: paginatedVideos,
+      pagination: {
+        page,
+        limit,
+        total: filteredVideos.length,
+        totalPages: Math.ceil(filteredVideos.length / limit),
+      },
+    });
+  }),
+
+  // 更新影片 API handler
+  http.put("/api/videos/:id", async ({ request, params }) => {
+    const { id } = params;
+    const { title, description, tags } =
+      (await request.json()) as UpdateVideoRequest;
+
+    // 模擬網路延遲
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    // 模擬更新邏輯
+    console.log("Updating video:", { id, title, description, tags });
+
+    // 檢查影片是否存在
+    const videoIndex = mockVideos.findIndex((v) => v.id === id);
+    if (videoIndex === -1) {
+      return HttpResponse.json(
+        { success: false, message: "Video not found" },
+        { status: 404 }
+      );
+    }
+
+    // 更新影片資料
+    const updatedVideo = {
+      ...mockVideos[videoIndex],
+      title,
+      description,
+      tags,
+    };
+    mockVideos[videoIndex] = updatedVideo;
+
+    // 模擬成功回應
+    return HttpResponse.json({
+      success: true,
+      message: "Video updated successfully",
+      data: updatedVideo,
+    });
+  }),
+
+  // 刪除影片 API handler
+  http.delete("/api/videos/:id", async ({ params }) => {
+    const { id } = params;
+
+    // 模擬網路延遲
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    // 模擬刪除邏輯
+    console.log("Deleting video:", { id });
+
+    // 檢查影片是否存在
+    const videoIndex = mockVideos.findIndex((v) => v.id === id);
+    if (videoIndex === -1) {
+      return HttpResponse.json(
+        { success: false, message: "Video not found" },
+        { status: 404 }
+      );
+    }
+
+    // 從陣列中移除影片
+    mockVideos = mockVideos.filter((v) => v.id !== id);
+
+    // 模擬成功回應
+    return HttpResponse.json({
+      success: true,
+      message: "Video deleted successfully",
+    });
   }),
 
   // 使用者資訊 API handler

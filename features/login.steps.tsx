@@ -305,7 +305,7 @@ defineFeature(feature, (test) => {
           color: "green",
           icon: expect.anything(),
         });
-        expect(mockPush).toHaveBeenCalledWith("/user");
+        expect(mockPush).toHaveBeenCalledWith("/user/video");
       });
     });
   });
