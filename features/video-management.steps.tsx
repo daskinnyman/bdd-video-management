@@ -6,6 +6,25 @@ import { MantineProvider } from "@mantine/core";
 import VideoManagementPage from "../src/app/user/video/page";
 import { mockVideos, Video } from "../src/app/user/video/mock-data";
 
+// Mock Next.js router
+const mockPush = jest.fn();
+const mockReplace = jest.fn();
+const mockBack = jest.fn();
+const mockForward = jest.fn();
+const mockRefresh = jest.fn();
+const mockPrefetch = jest.fn();
+
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    replace: mockReplace,
+    back: mockBack,
+    forward: mockForward,
+    refresh: mockRefresh,
+    prefetch: mockPrefetch,
+  }),
+}));
+
 const feature = loadFeature("./features/video-management.feature");
 
 // Mock hooks

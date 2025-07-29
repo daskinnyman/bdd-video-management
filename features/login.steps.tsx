@@ -97,8 +97,8 @@ defineFeature(feature, (test) => {
           }),
         });
         expect(mockNotifications.show).toHaveBeenCalledWith({
-          title: "Success",
-          message: "Login successful!",
+          title: "登入成功",
+          message: "歡迎回來！",
           color: "green",
           icon: expect.anything(),
         });
@@ -256,8 +256,8 @@ defineFeature(feature, (test) => {
     then("I should see a admin dashboard", async () => {
       await waitFor(() => {
         expect(mockNotifications.show).toHaveBeenCalledWith({
-          title: "Success",
-          message: "Login successful!",
+          title: "登入成功",
+          message: "歡迎回來！",
           color: "green",
           icon: expect.anything(),
         });
@@ -300,8 +300,8 @@ defineFeature(feature, (test) => {
     then("I should see a user page", async () => {
       await waitFor(() => {
         expect(mockNotifications.show).toHaveBeenCalledWith({
-          title: "Success",
-          message: "Login successful!",
+          title: "登入成功",
+          message: "歡迎回來！",
           color: "green",
           icon: expect.anything(),
         });

@@ -1,10 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { notifications } from "@mantine/notifications";
 import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
 import type { UploadVideoFormData, VideoTag } from "../types";
 import { uploadVideoService } from "../services/upload-video-service";
 
@@ -81,7 +81,7 @@ export const useUploadVideoForm = () => {
         showNotification("Success", result.message, "green");
         reset();
         // Can redirect to video list page or other pages
-        router.push("/video");
+        router.push("/user/video");
       } else {
         setError("root", {
           type: "manual",

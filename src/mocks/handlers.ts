@@ -1,4 +1,5 @@
 import { http, HttpResponse } from "msw";
+import { mockVideos } from "./mockData";
 
 interface LoginRequest {
   email: string;
@@ -21,41 +22,7 @@ interface UpdateVideoRequest {
 }
 
 // 模擬影片資料 - 使用 let 讓它可以被修改
-let mockVideos = [
-  {
-    id: "video-1",
-    title: "React 基礎教學 1",
-    description: "深入淺出地介紹 React 的核心概念和實作技巧",
-    status: "published" as const,
-    uploadDate: "2024-01-15",
-    tags: ["教育", "科技"],
-    thumbnailUrl: "https://picsum.photos/300/200?random=1",
-    duration: "15:30",
-    views: 1250,
-  },
-  {
-    id: "video-2",
-    title: "TypeScript 進階技巧 2",
-    description: "學習 TypeScript 的高級功能和最佳實踐",
-    status: "pending" as const,
-    uploadDate: "2024-01-20",
-    tags: ["教育", "科技"],
-    thumbnailUrl: "https://picsum.photos/300/200?random=2",
-    duration: "22:15",
-    views: 890,
-  },
-  {
-    id: "video-3",
-    title: "Next.js 13 新功能介紹 3",
-    description: "探索 Next.js 13 的新特性和改進",
-    status: "rejected" as const,
-    uploadDate: "2024-01-25",
-    tags: ["科技"],
-    thumbnailUrl: "https://picsum.photos/300/200?random=3",
-    duration: "18:45",
-    views: 567,
-  },
-];
+let videos = [...mockVideos];
 
 export const handlers = [
   // 測試 API handler
@@ -145,7 +112,7 @@ export const handlers = [
     // 模擬網路延遲
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    let filteredVideos = [...mockVideos];
+    let filteredVideos = [...videos];
 
     // 根據狀態篩選
     if (status && status !== "all") {
@@ -192,7 +159,7 @@ export const handlers = [
     console.log("Updating video:", { id, title, description, tags });
 
     // 檢查影片是否存在
-    const videoIndex = mockVideos.findIndex((v) => v.id === id);
+    const videoIndex = videos.findIndex((v) => v.id === id);
     if (videoIndex === -1) {
       return HttpResponse.json(
         { success: false, message: "Video not found" },
@@ -202,12 +169,12 @@ export const handlers = [
 
     // 更新影片資料
     const updatedVideo = {
-      ...mockVideos[videoIndex],
+      ...videos[videoIndex],
       title,
       description,
       tags,
     };
-    mockVideos[videoIndex] = updatedVideo;
+    videos[videoIndex] = updatedVideo;
 
     // 模擬成功回應
     return HttpResponse.json({
@@ -228,7 +195,7 @@ export const handlers = [
     console.log("Deleting video:", { id });
 
     // 檢查影片是否存在
-    const videoIndex = mockVideos.findIndex((v) => v.id === id);
+    const videoIndex = videos.findIndex((v) => v.id === id);
     if (videoIndex === -1) {
       return HttpResponse.json(
         { success: false, message: "Video not found" },
@@ -237,7 +204,7 @@ export const handlers = [
     }
 
     // 從陣列中移除影片
-    mockVideos = mockVideos.filter((v) => v.id !== id);
+    videos = videos.filter((v) => v.id !== id);
 
     // 模擬成功回應
     return HttpResponse.json({

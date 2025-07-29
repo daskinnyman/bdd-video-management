@@ -133,8 +133,8 @@ describe("useLoginForm", () => {
       );
       expect(mockLoginService.login).toHaveBeenCalledTimes(1);
       expect(mockShow).toHaveBeenCalledWith({
-        title: "Success",
-        message: "Login successful",
+        title: "登入成功",
+        message: "歡迎回來！",
         color: "green",
         icon: expect.any(Object),
       });
@@ -165,8 +165,8 @@ describe("useLoginForm", () => {
       );
       expect(mockLoginService.login).toHaveBeenCalledTimes(1);
       expect(mockShow).toHaveBeenCalledWith({
-        title: "Success",
-        message: "Login successful",
+        title: "登入成功",
+        message: "歡迎回來！",
         color: "green",
         icon: expect.any(Object),
       });
@@ -196,13 +196,13 @@ describe("useLoginForm", () => {
       );
       expect(mockLoginService.login).toHaveBeenCalledTimes(1);
       expect(mockShow).toHaveBeenCalledWith({
-        title: "Success",
-        message: "Login successful",
+        title: "登入成功",
+        message: "歡迎回來！",
         color: "green",
         icon: expect.any(Object),
       });
-      // Should not redirect if no role is provided
-      expect(mockPush).not.toHaveBeenCalled();
+      // Should redirect to /user/video if no role is provided
+      expect(mockPush).toHaveBeenCalledWith("/user/video");
     });
 
     it("should handle login failure", async () => {
@@ -282,8 +282,8 @@ describe("useLoginForm", () => {
       });
 
       expect(mockShow).toHaveBeenCalledWith({
-        title: "Success",
-        message: "Success message",
+        title: "登入成功",
+        message: "歡迎回來！",
         color: "green",
         icon: expect.any(Object),
       });
@@ -405,7 +405,7 @@ describe("useLoginForm", () => {
         await result.current.onSubmit(mockFormData);
       });
 
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith("/user/video");
     });
   });
 });

@@ -54,12 +54,12 @@ export const useLoginForm = () => {
       const result = await loginService.login(data.email, data.password);
 
       if (result.success) {
-        showNotification("Success", result.message, "green");
+        showNotification("登入成功", "歡迎回來！", "green");
 
-        // Redirect based on user role
+        // 根據用戶角色進行不同的導向
         if (result.role === "admin") {
           router.push("/admin");
-        } else if (result.role === "user") {
+        } else {
           router.push("/user/video");
         }
       } else {

@@ -218,7 +218,7 @@ describe("useUploadVideoForm", () => {
         color: "green",
         icon: expect.any(Object),
       });
-      expect(mockPush).toHaveBeenCalledWith("/video");
+      expect(mockPush).toHaveBeenCalledWith("/user/video");
     });
 
     it("should handle form submission with validation error", async () => {

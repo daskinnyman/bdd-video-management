@@ -3,7 +3,7 @@
 import { Container, Box } from "@mantine/core";
 import { UploadVideoForm } from "./components/upload-video-form";
 import { useUploadVideoForm } from "./hooks/use-upload-video-form";
-import { ThemeToggle } from "../components/theme-toggle";
+import { ThemeToggle } from "../../../components/theme-toggle";
 
 export default function UploadVideoPage() {
   const {

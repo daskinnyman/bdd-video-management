@@ -2,12 +2,15 @@
 
 import React from "react";
 import { Button } from "@mantine/core";
+import { IconPlus } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/app/components/theme-toggle";
 import { VideoTable, EditVideoModal, DeleteVideoModal } from "./components";
 import { useVideoManagement } from "./hooks";
 import classes from "./video-management.module.scss";
 
 export default function VideoManagementPage() {
+  const router = useRouter();
   const {
     // 狀態
     videos,
@@ -30,12 +33,23 @@ export default function VideoManagementPage() {
     closeDeleteModal,
   } = useVideoManagement();
 
+  const handleUploadNew = () => {
+    router.push("/user/video/create");
+  };
+
   return (
     <div className={classes.videoManagementPage}>
       {/* 頁面標題和操作 */}
       <div className={classes.pageHeader}>
         <h1 className={classes.pageTitle}>📹 影片管理</h1>
         <div className={classes.headerActions}>
+          <Button
+            leftSection={<IconPlus size={16} />}
+            onClick={handleUploadNew}
+            data-testid="upload-new-video-button"
+          >
+            上傳新影片
+          </Button>
           <Button
             variant={showFilters ? "filled" : "light"}
             onClick={toggleFilters}
