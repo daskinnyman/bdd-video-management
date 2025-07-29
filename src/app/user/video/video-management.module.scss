@@ -1,0 +1,321 @@
+.videoManagementPage {
+  padding: 24px;
+  min-height: 100vh;
+  background-color: var(--mantine-color-body);
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--mantine-color-text);
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.tableContainer {
+  background: var(--mantine-color-body);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid var(--mantine-color-gray-2);
+}
+
+.tableHeader {
+  padding: 20px 24px;
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-blue-0) 0%,
+    var(--mantine-color-gray-0) 100%
+  );
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      var(--mantine-color-blue-6) 0%,
+      var(--mantine-color-cyan-6) 100%
+    );
+  }
+}
+
+.tableTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--mantine-color-text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: "📹";
+    font-size: 24px;
+  }
+}
+
+.tableContent {
+  height: 600px;
+  background: var(--mantine-color-body);
+}
+
+// 改善表格樣式
+:global(.mantine-Table-root) {
+  background: var(--mantine-color-body);
+
+  .mantine-Table-thead {
+    background: var(--mantine-color-gray-0);
+
+    .mantine-Table-th {
+      background: var(--mantine-color-gray-0);
+      border-bottom: 2px solid var(--mantine-color-gray-3);
+      font-weight: 600;
+      color: var(--mantine-color-text);
+      padding: 16px 12px;
+      position: relative;
+
+      &:hover {
+        background: var(--mantine-color-gray-1);
+      }
+    }
+  }
+
+  .mantine-Table-tbody {
+    .mantine-Table-tr {
+      border-bottom: 1px solid var(--mantine-color-gray-2);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--mantine-color-gray-0);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .mantine-Table-td {
+        padding: 16px 12px;
+        border-bottom: 1px solid var(--mantine-color-gray-1);
+        vertical-align: middle;
+      }
+    }
+  }
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.statusPending {
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-yellow-1) 0%,
+    var(--mantine-color-orange-1) 100%
+  );
+  color: var(--mantine-color-yellow-8);
+  border: 1px solid var(--mantine-color-yellow-3);
+}
+
+.statusPublished {
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-green-1) 0%,
+    var(--mantine-color-emerald-1) 100%
+  );
+  color: var(--mantine-color-green-8);
+  border: 1px solid var(--mantine-color-green-3);
+}
+
+.statusRejected {
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-red-1) 0%,
+    var(--mantine-color-pink-1) 100%
+  );
+  color: var(--mantine-color-red-8);
+  border: 1px solid var(--mantine-color-red-3);
+}
+
+.actionButtons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.actionButton {
+  padding: 6px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.editButton {
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-blue-1) 0%,
+    var(--mantine-color-indigo-1) 100%
+  );
+  color: var(--mantine-color-blue-7);
+  border-color: var(--mantine-color-blue-3);
+
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      var(--mantine-color-blue-2) 0%,
+      var(--mantine-color-indigo-2) 100%
+    );
+    color: var(--mantine-color-blue-8);
+  }
+}
+
+.deleteButton {
+  background: linear-gradient(
+    135deg,
+    var(--mantine-color-red-1) 0%,
+    var(--mantine-color-pink-1) 100%
+  );
+  color: var(--mantine-color-red-7);
+  border-color: var(--mantine-color-red-3);
+
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      var(--mantine-color-red-2) 0%,
+      var(--mantine-color-pink-2) 100%
+    );
+    color: var(--mantine-color-red-8);
+  }
+}
+
+.videoTitle {
+  font-weight: 600;
+  color: var(--mantine-color-text);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.videoDescription {
+  color: var(--mantine-color-dimmed);
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+  font-size: 13px;
+}
+
+.uploadDate {
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: var(--mantine-color-dimmed);
+  background: var(--mantine-color-gray-0);
+  border-radius: 12px;
+  margin: 20px;
+}
+
+.emptyIcon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+.emptyMessage {
+  font-size: 16px;
+  text-align: center;
+  font-weight: 500;
+}
+
+// 改善標籤樣式
+:global(.mantine-Chip-root) {
+  background: transparent;
+  border: none;
+  color: var(--mantine-color-text);
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--mantine-color-gray-1);
+    transform: translateY(-1px);
+  }
+}
+
+// 改善篩選區域樣式
+:global(.mantine-TextInput-root) {
+  .mantine-TextInput-input {
+    border-radius: 8px;
+    border: 1px solid var(--mantine-color-gray-3);
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: var(--mantine-color-blue-5);
+      box-shadow: 0 0 0 2px var(--mantine-color-blue-1);
+    }
+  }
+}
+
+// 改善按鈕樣式
+:global(.mantine-Button-root) {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}

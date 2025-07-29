@@ -170,7 +170,7 @@ describe("useLoginForm", () => {
         color: "green",
         icon: expect.any(Object),
       });
-      expect(mockPush).toHaveBeenCalledWith("/user");
+      expect(mockPush).toHaveBeenCalledWith("/user/video");
     });
 
     it("should handle successful login without role", async () => {
@@ -386,7 +386,7 @@ describe("useLoginForm", () => {
         await result.current.onSubmit(mockFormData);
       });
 
-      expect(mockPush).toHaveBeenCalledWith("/user");
+      expect(mockPush).toHaveBeenCalledWith("/user/video");
     });
 
     it("should not redirect when no role is provided", async () => {

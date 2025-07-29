@@ -60,7 +60,7 @@ export const useLoginForm = () => {
         if (result.role === "admin") {
           router.push("/admin");
         } else if (result.role === "user") {
-          router.push("/user");
+          router.push("/user/video");
         }
       } else {
         setError("root", {
