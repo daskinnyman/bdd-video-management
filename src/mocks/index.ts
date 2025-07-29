@@ -6,8 +6,13 @@ async function enableMocking() {
   } else {
     // 在瀏覽器環境中，使用 worker
     const { worker } = await import("./browser");
-    if (worker) {
-      return worker.start();
+    try {
+      await worker.start({
+        onUnhandledRequest: "bypass", // 忽略未處理的請求
+      });
+      console.log("MSW worker started successfully");
+    } catch (error) {
+      console.error("Failed to start MSW worker:", error);
     }
   }
 }
