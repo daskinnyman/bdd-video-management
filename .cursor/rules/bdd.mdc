@@ -1,29 +1,23 @@
 ---
 description: 
-globs: 
-alwaysApply: true
+globs: features/**/*.feature,features/**/*.steps.ts,features/**/*.steps.tsx
+alwaysApply: false
 ---
----
-description: Enforce BDD testing structure
-globs: ["features/**/*.feature", "features/**/*.steps.ts", "features/**/*.steps.tsx"]
-alwaysApply: true
----
-
-- 每個 `.feature` 檔案都必須有對應的 `.steps.ts` 測試檔
-- 使用 `jest-cucumber` 撰寫測試流程
-- Step 定義必須包含 `given`, `when`, `then`
-- 每個 `step` 使用明確變數命名（如 `username`, `password`, `result`）
-- 測試需使用 `jest.fn()` 建立 mock function（例如 `mockLogin = jest.fn(login)`）
-- 每個情境需驗證：
-  - mock 函式是否被呼叫（`toHaveBeenCalledWith()`）
-  - mock 函式是否只被呼叫一次（`toHaveBeenCalledTimes(1)`）
-  - 回傳結果正確（`toBe(...)`）
-- 每個測試檔應加入 `beforeEach()` 並清除 mock 狀態（`jest.clearAllMocks()`）
-- 使用data-testid抓取控制項
-- 錯誤訊息應使用 `screen.getByText(...)` 或 `getByTestId(...)` 驗證
-- 所有欄位操作使用 `userEvent.type` 或 `clear`
-- UI 測試使用 `waitFor` 包裹 async 結果驗證
-- 至少包含：
-  - 成功情境
-  - 錯誤情境（帳密錯誤）
-  - 邊界情境（空值）
+- Each `.feature` file must have a corresponding `.steps.ts` test file
+- Use `jest-cucumber` to write test flows
+- Step definitions must include `given`, `when`, `then`
+- Each `step` should use explicit variable naming (e.g., `username`, `password`, `result`)
+- Tests should use `jest.fn()` to create mock functions (e.g., `mockLogin = jest.fn(login)`)
+- Each scenario should verify:
+  - Whether mock functions are called (`toHaveBeenCalledWith()`)
+  - Whether mock functions are called only once (`toHaveBeenCalledTimes(1)`)
+  - Correct return results (`toBe(...)`)
+- Each test file should include `beforeEach()` and clear mock state (`jest.clearAllMocks()`)
+- Use data-testid to capture controls
+- Error messages should be verified using `screen.getByText(...)` or `getByTestId(...)`
+- All field operations should use `userEvent.type` or `clear`
+- UI tests should wrap async result verification with `waitFor`
+- Must include at least:
+  - Success scenarios
+  - Error scenarios (invalid credentials)
+  - Boundary scenarios (empty values)

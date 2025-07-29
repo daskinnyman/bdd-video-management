@@ -3,22 +3,14 @@ description:
 globs: src/**/*tsx
 alwaysApply: false
 ---
----
-description: Mantine-based UI development rules
-globs:
-  - "ui/**/*.tsx"
-  - "app/**/*.tsx"
-alwaysApply: true
----
-
-- 所有元件都應使用 [Mantine](https://mantine.dev/) 元件庫為主要樣式框架
-- 使用 `TextInput`, `PasswordInput`, `Button`, `Paper`, `Group`, `Box` 等常見 Mantine 元件
-- 元件命名使用 PascalCase，例如 `LoginForm`, `UploadForm`
-- 表單提交應使用 `form.onSubmit()` 包裝 callback，避免自己處理 `event.preventDefault`
-- 所有重要欄位與按鈕應加上 `data-testid` 屬性，用於 UI 測試
-- 使用react-hook-form建立表單，及表單驗證規則
-- 元件應保持可重用性，避免在元件內寫死 API 呼叫，改用 `onSubmit` props 傳入外部邏輯
-- 按鈕應支援 `loading` 狀態，顯示等待中動畫
-- 可使用 `@mantine/notifications` 顯示操作成功或錯誤提示
-- 請保持合理的排版結構（例如 `Paper` 內包表單，欄位間有 `mt="md"`）
-- 請使用scss module來處理Mantine元件沒有提供的樣式
+- All components should use [Mantine](mdc:https:/mantine.dev) component library as the primary styling framework
+- Use common Mantine components such as `TextInput`, `PasswordInput`, `Button`, `Paper`, `Group`, `Box`
+- Component naming should use PascalCase, e.g., `LoginForm`, `UploadForm`
+- Form submission should use `form.onSubmit()` to wrap callbacks, avoid handling `event.preventDefault` manually
+- All important fields and buttons should include `data-testid` attributes for UI testing
+- Use react-hook-form to create forms and form validation rules
+- Components should maintain reusability, avoid hardcoding API calls within components, use `onSubmit` props to pass external logic
+- Buttons should support `loading` state to display loading animations
+- Use `@mantine/notifications` to display success or error operation prompts
+- Maintain reasonable layout structure (e.g., wrap forms in `Paper`, use `mt="md"` between fields)
+- Use SCSS modules to handle styles not provided by Mantine components
